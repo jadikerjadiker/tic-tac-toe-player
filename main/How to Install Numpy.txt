@@ -1,0 +1,7 @@
+http://stackoverflow.com/questions/18785063/install-numpy-in-python-virtualenv
+
+sudo apt-get update
+sudo apt-get install python2.7-dev
+sudo pip install numpy
+
+(might be nice if I could figure out a way to do this without all the warnings for the install numpy step.)

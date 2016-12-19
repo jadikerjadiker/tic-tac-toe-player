@@ -8,6 +8,9 @@ class Game:
         #0 is an empty slot on the board
         #It is usually the case (but it is not assumed) that 1 is a player, -1 is the other player.
         self.board = [0]*9
+        
+        #will be in the form [(where, who), (where, who), etc.]
+        #where "where" is position of placement and "who" is number used to represent player
         self.movesMade = []
         
     #todo this can be made so much better
@@ -57,7 +60,7 @@ class Game:
             ans = None
         else: #game is done
             ans = 0
-        #first check the rows for winning. If there are any open slots, set the answer to be None (game's not over) instead of 0 (tie)
+        #first check the rows for winning, then check diagonals
         runningVal = None
         for checking in range(4):
             for i in range(3):
@@ -68,8 +71,6 @@ class Game:
                         else: #checking columns
                             val = self.board[i+j*3]
                         
-                        print("Checking val {} with i={} and j={} and checking={}".format(val, i, j, checking))
-                        #todo the part below this should be copied    
                         if val==0: #person doesn't have the row or column
                             break
                         else:
@@ -84,6 +85,7 @@ class Game:
                         val = self.board[i*4] #want it to check 0, 4, 8
                     else: #checking==3
                         val = self.board[(i+1)*2] #want it to check 2, 4, 6
+                        
                     if val==0: #person doesn't have the row or column
                         break
                     else:
