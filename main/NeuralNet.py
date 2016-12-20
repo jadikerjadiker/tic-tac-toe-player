@@ -66,14 +66,14 @@ class NeuralNet:
     
     #back propagation
     #batch is a list of tuples [(vector-like input, vector-like solution), (vector-like input, vector-like solution), ...]
-    #TODO clean up and comment clearly
+    #iterations is how many times it trains on the same batch. It's equivalent to running the function multiple times.
     #TODO use normal expressions like '-' and '+' when possible
-    def backProp(self, batch, normalization = 1, runTime = 1):
+    def train(self, batch, learningRate = 1, iterations = 1):
         #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
         #So you can also think of this as the list of matricies of how much the weights need to change
         #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
-        delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
-        for iteration in range(runTime):
+        for iteration in range(iterations):
+            delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
             for trainingExample in batch:
                 #list of errors in each layer. errors[l-1] is the error of layer l
                 errors = []
@@ -84,7 +84,8 @@ class NeuralNet:
                 #check to make sure solution vector has the right size
                 assert activations[-1].shape==y.shape, "Target vector (solution)\n{}\nmust have the correct number of values. (In this case, {} values.)".format(y, self.architecture[-1])
                 #calculate the error in the last layer and add it to the list of errors
-                errors.append(activations[-1]-y)
+                error = activations[-1]-y
+                errors.append(error)
                 
                 #go backwards through each layer of the net and calculate the error for those
                 #i = (number of layer we're computing the error for) - 1
@@ -119,7 +120,7 @@ class NeuralNet:
 
                 #update the weights
                 for matrixIndex in range(len(self.net)):
-                    self.net[matrixIndex] = np.subtract(self.net[matrixIndex], delta[matrixIndex])
+                    self.net[matrixIndex] = np.subtract(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
     
     def __str__(self):
         ans = "Weights:\n"
@@ -169,14 +170,14 @@ if __name__ == "__main__":
     n.backProp([([1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1])])
     '''
 
-    training = ([1, 0, 1, 1, 1, 0, 1, 1, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0])
+    training = ([1, 1, 0, -1, -1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0])
     n = NeuralNet([9, 9, 9, 9])
     w = n.net[0]
     import copy
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getErrorOfLastLayer(*training)
-    n.backProp([training], runTime = 1)
+    n.train([training], learningRate = 5, iterations = 100)
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getErrorOfLastLayer(*training)))
     #print(oldMatrix)
     #print(n.net)

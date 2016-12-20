@@ -3,7 +3,7 @@ import random
 class IllegalMove(RuntimeError):
     pass
 
-class Game:
+class TicTacToeGame:
     def __init__(self):
         #0 is an empty slot on the board
         #It is usually the case (but it is not assumed) that 1 is a player, -1 is the other player.
@@ -104,9 +104,35 @@ class Game:
             if val==0:
                 ans.append(i)
         return ans
+    
+    #returns a new game with the players in the game converted to certain numbers
+    #conversion is a dictionary with keys being the old player number,
+    #and the values being the number it should be converted to    
+    def getConvert(self, conversion):
+        ans = TicTacToeGame() #make a new game to return, don't edit the old one
+        #redo the game with the conversion
+        for move in self.movesMade:
+            #convert the value, using the original if no conversion is listed
+            ans.makeMove(move[0], conversion.get(move[1], move[1]))
+        return ans
+        
+    #converts the players in the game to certain numbers
+    #conversion is a dictionary with keys being the old player number,
+    #and the values being the number it should be converted to 
+    #does not return anything
+    def convert(self, conversion):
+        self = self.getConvert(conversion)
+    
+    #returns a copy of the game
+    def copy(self):
+        ans = TicTacToeGame()
+        #just redo the game from the start on a new game
+        for move in self.movesMade:
+            ans.makeMove(*move)
+        return ans
                         
 def makeRandomGame():
-    game = Game()
+    game = TicTacToeGame()
     player = 1
     while game.whoWon()==None:
         game.makeMove(random.choice(game.getOpenSpaces()), player)
