@@ -51,3 +51,16 @@ A representation of the game, and a representation of a played game.
 A neural net and a method to be given a game and train itself to be the winner.
 An overall method running this plan.
 '''
+
+'''
+I think the next net should either train on ties as well
+or play against a random computer.
+
+I think playing against a random player will be more interesting result-wise, so I'll do that next.
+
+I'm also judging how good these nets are based on one situation.
+I have also yet to implement bigger batches than one game.
+
+I'm also just making sure the average error over each batch is below a certain level.
+What if the error of each had to be below a certain level?
+'''

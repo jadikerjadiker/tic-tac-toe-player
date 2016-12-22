@@ -1,0 +1,55 @@
+Given that the other player went first in the top corner
+
+sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .001))
+[0, 3, 12, 3, 12, 5, 5, 4, 6] = 50
+
+sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 5, trainingMode = ('error', .0001))
+[0, 13, 16, 8, 17, 7, 16, 10, 13] = 100
+
+sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 10000, learningRate = 5, trainingMode = ('error', .0001))
+[0, 1, 0, 0, 0, 0, 2, 1, 1] = 5
+
+sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[0, 6, 17, 13, 21, 9, 15, 8, 11] = 100
+
+sky = LearningNet1([9, 100, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[0, 3, 21, 7, 20, 11, 11, 14, 13] = 100
+
+sky = LearningNet1([9, 300, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[0, 8, 18, 11, 21, 10, 12, 10, 10] = 100
+
+sky = LearningNet1([9, 3000, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[0, 2, 5, 2, 4, 2, 7, 0, 8] = 30
+[0, 3, 9, 13, 16, 5, 13, 4, 12] = 75
+[0, 10, 14, 15, 19, 7, 14, 6, 15] = 100
+
+sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[0, 5, 8, 6, 14, 5, 4, 3, 5] = 50
+[0, 6, 12, 7, 19, 9, 9, 4, 9] = 75
+[0, 12, 15, 8, 22, 10, 11, 7, 15] = 100
+
+sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .1))
+[0, 2, 5, 2, 4, 3, 7, 2, 5] = 30
+
+sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 100, trainingMode = ('iter', 5))
+[0, 8, 7, 5, 8, 0, 4, 0, 8] = 40
+[0, 10, 9, 5, 10, 2, 4, 2, 8] = 50
+[0, 13, 13, 7, 14, 6, 7, 4, 11] = 75
+[0, 19, 18, 9, 16, 7, 10, 7, 14] = 100
+
+
+Given that the other player went in the middle
+sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[12, 7, 8, 10, 0, 4, 8, 7, 14] = 70
+
+
+Given that nobody has gone yet
+sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .01))
+[2, 1, 2, 2, 6, 3, 4, 7, 3] = 30
+[3, 2, 3, 4, 14, 4, 7, 8, 5] = 50
+
+
+
+
+
+

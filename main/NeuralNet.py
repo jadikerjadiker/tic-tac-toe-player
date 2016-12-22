@@ -20,9 +20,6 @@ def resizeToVector(thing):
 
 def makeVector(thing):
     return resizeToVector(np.array(thing))
-    
-def insertColVecOnLeft(matrix, colVec):
-    return np.insert(matrix, [0], colVec, axis=1)
 
 '''
 All a neural net is is a bunch of weights, going from one layer to the next
@@ -61,18 +58,22 @@ class NeuralNet:
         
         return activations
     
-    def getErrorOfLastLayer(self, inpt, solution):
+    #get the error of the final layer given the input and the wanted result
+    def getFinalError(self, inpt, solution):
         return self.run(inpt)-makeVector(solution)
     
     #back propagation
     #batch is a list of tuples [(vector-like input, vector-like solution), (vector-like input, vector-like solution), ...]
     #iterations is how many times it trains on the same batch. It's equivalent to running the function multiple times.
     #TODO use normal expressions like '-' and '+' when possible
-    def train(self, batch, learningRate = 1, iterations = 1):
+    #TODO split this up into two training types; if mode is error it can use those error values to compute the errors of the last layer for the next training session
+    #TODO (the above todo can fix this as well) this always trains at least once even if the error is just fine. Should check error before training.
+    def train(self, batch, learningRate = 1, mode = ("iter", 1)):
         #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
         #So you can also think of this as the list of matricies of how much the weights need to change
         #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
-        for iteration in range(iterations):
+        modeType, modeValue = mode
+        while True:
             delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
             for trainingExample in batch:
                 #list of errors in each layer. errors[l-1] is the error of layer l
@@ -121,6 +122,24 @@ class NeuralNet:
                 #update the weights
                 for matrixIndex in range(len(self.net)):
                     self.net[matrixIndex] = np.subtract(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
+                
+                #figure out if the training is done
+                if modeType=="error":
+                    totalError = np.zeros((len(batch[0][1]), 1))
+                    #add up the error among all the training examples
+                    for trainingExample in batch:
+                        totalError+=self.getFinalError(*trainingExample)
+                    #if the average error is low enough, return
+                    if np.sum(totalError)/totalError.shape[0]<=modeValue:
+                        return
+                elif modeType=="iter":
+                    #next iteration
+                    modeValue-=1
+                    #if we've done enough iterations, return
+                    if modeValue<=0:
+                        return
+                else:
+                    raise RuntimeError("Unrecognized mode type '{}'. Try 'error' or 'iter'".format(modeType))
     
     def __str__(self):
         ans = "Weights:\n"
@@ -176,8 +195,8 @@ if __name__ == "__main__":
     import copy
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
-    beforeError = n.getErrorOfLastLayer(*training)
-    n.train([training], learningRate = 5, iterations = 100)
-    print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getErrorOfLastLayer(*training)))
+    beforeError = n.getFinalError(*training)
+    n.train([training], learningRate = 5, mode = ('error', .001))
+    print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
     #print(oldMatrix)
     #print(n.net)

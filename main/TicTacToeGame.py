@@ -23,15 +23,12 @@ class TicTacToeGame:
             elif num==-1:
                 return 'X'
             else:
-                return str(num)
+                raise RuntimeError("Unrecognized symbol in game: '{}'".format(num))
             
         ans = ""
-        spaceLen = max([len(str(val)) for val in self.board])
         for i, val in enumerate(self.board):
-            strVal = convertToStr(val)
-            ans+=strVal+" "*(spaceLen+1-len(strVal))
-        
-            if i%3==2:
+            ans+=convertToStr(val)+" "
+            if i%3==2: #if we just added the last symbol for the row
                 ans+='\n'
 
         return ans
@@ -43,10 +40,10 @@ class TicTacToeGame:
         self.__init__()
         
     def makeMove(self, where, playerNum):
+        assert playerNum==1 or playerNum==-1, "Players can only play 1 or -1, not '{}'".format(playerNum)
         if self.board[where]==0:
             self.board[where] = playerNum
             self.movesMade.append((where, playerNum))
-            
         else:
             raise IllegalMove("Cannot make move at '{}' by player '{}' because it is already taken. {}".format(where, playerNum, self))
     
@@ -105,7 +102,16 @@ class TicTacToeGame:
                 ans.append(i)
         return ans
     
-    #returns a new game with the players in the game converted to certain numbers
+    #returns a new game object that's a copy of the old one but with the player numbers swapped
+    def getConvert(self, conversion):
+        ans = TicTacToeGame() #make a new game to return, don't edit the old one
+        #redo the game with the conversion
+        for move in self.movesMade:
+            #convert the value, using the original if no conversion is listed
+            ans.makeMove(move[0], move*-1)
+        return ans
+    
+    #returns a new (different) game with the players in the game converted to certain numbers
     #conversion is a dictionary with keys being the old player number,
     #and the values being the number it should be converted to    
     def getConvert(self, conversion):
@@ -135,7 +141,39 @@ def makeRandomGame():
     game = TicTacToeGame()
     player = 1
     while game.whoWon()==None:
-        game.makeMove(random.choice(game.getOpenSpaces()), player)
+        makeRandomMove(game, player)
         player*=-1
     
     return game
+
+def makeRandomMove(game, player):
+    game.makeMove(random.choice(game.getOpenSpaces()), player)
+
+def playHumanVNeuralNet(net):
+    #figure out who goes first
+    curPlayer = random.choice([-1, 1])
+    game = TicTacToeGame()
+    print("New game!")
+    print(game)
+    while game.whoWon()==None:
+        if curPlayer==-1:
+            while True:
+                try:
+                    game.makeMove(int(raw_input("Where would you like to go? "))-1, -1)
+                    break
+                except:
+                    print("That didn't seem to work.")
+        else: #computer's turn
+            game.makeMove(net.getMove(game, 1, -1), 1)
+        print(game)
+        curPlayer*=-1 #other player's turn
+    if game.whoWon()==1:
+        print("The computer won!")
+    elif game.whoWon()==-1:
+        print("You won!")
+    else:
+        print("Tie game!")
+    return game
+                
+        
+    
