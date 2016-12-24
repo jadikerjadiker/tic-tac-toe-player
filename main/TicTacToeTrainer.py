@@ -43,8 +43,6 @@ class LearningNet3(NeuralNet.NeuralNet):
     
     '''   
     def makeTrainingSet(self, gameList, examplesPerBatch = None):
-        #dp
-        print("makeTrainingSet started")
         if examplesPerBatch==None:
             examplesPerBatch = -1
         ans = []
@@ -53,7 +51,6 @@ class LearningNet3(NeuralNet.NeuralNet):
         if not hasattr(gameList, "__iter__"):
             gameList = [gameList] #it used to be a single game, so now we're just making it into a list
         for game in gameList:
-            print("game:\n{}".format(game))
             #if we've added the right amount of games to the batch
             if batchCountdown==0:
                 ans.append(batch) #add the batch to the final training set
@@ -72,11 +69,9 @@ class LearningNet3(NeuralNet.NeuralNet):
             #see if player 1 goes first
             myMove = (1==game.movesMade[0][1])
             for move in game.movesMade:
-                print("The move:\n{}".format(move))
                 if myMove: #if player 1 is going
                     oneHotMove = [0]*9
                     oneHotMove[move[0]] = 1
-                    print("trainingGame:\n{}".format(trainingGame))
                     batch.append(([boardSpace for boardSpace in trainingGame.board], oneHotMove))
                     batchCountdown-=1
                 elif winner==0: #if the game's a tie, train for the other player as well
@@ -114,7 +109,9 @@ class LearningNet3(NeuralNet.NeuralNet):
         for gameNum in range(gamesToPlay):
             game = tttg.playHumanVNeuralNet(self)
             if game.whoWon():
+                print("Training...")
                 self.train(self.makeTrainingSet(game), learningRate = self.learningRate, mode = self.trainingMode)
+                print("Training complete!")
 
 def testAgainstRandom(net, games = 100, comment = False):
     results = [0]*3 #[losses, ties, wins] for the net
