@@ -30,6 +30,12 @@ class NeuralNet:
         #create matricies with random values with the correct dimensions (n(l) x n(l-1)+1)
         self.net = [np.random.randn(self.architecture[layerIndex], self.architecture[layerIndex-1]+1) for layerIndex in range(1, len(self.architecture))]
     
+    def __str__(self):
+        ans = "Weights:\n"
+        for i, val in enumerate(self.net):
+            ans+=str(val)+"\n"
+        return ans
+    
     #returns the output of the neural net as a vector
     def run(self, inpt):
         return self.getActivations(inpt)[-1]
@@ -58,94 +64,132 @@ class NeuralNet:
         
         return activations
     
-    #get the error of the final layer given the input and the wanted result
+    #return the error of the final layer (a vector) given the input and the wanted result
     def getFinalError(self, inpt, solution):
         return self.run(inpt)-makeVector(solution)
     
     #back propagation
-    #batch is a list of tuples [(vector-like input, vector-like solution), (vector-like input, vector-like solution), ...]
-    #iterations is how many times it trains on the same batch. It's equivalent to running the function multiple times.
+    #a batch is a list of tuples [(vector-like input, vector-like solution), (vector-like input, vector-like solution), ...]
+    #batches is a list of batches [batch1, batch2, etc.]
+    #mode is a tuple (modeType, modeValue)
+    #Here are the different modes in order of how much error they allow. Less error is at the top:
+    #modeType: what modeValue does (this is an example)
+    #"iter": value specifies the amount of times the training is done
+    #"avg": value specifies the maximum average error allowed over the each example
+    #"avgAvg": value specifies the maximum allowed sum of the averages of the error in each example of the batch
+    #"specific": value specifies the maximum average error allowed for each output neuron on each example
+    #The net will continue to train on the entire batch until the error is low enough or it has trained enough times (depending on the mode)
     #TODO use normal expressions like '-' and '+' when possible
-    #TODO split this up into two training types; if mode is error it can use those error values to compute the errors of the last layer for the next training session
-    #TODO (the above todo can fix this as well) this always trains at least once even if the error is just fine. Should check error before training.
-    def train(self, batch, learningRate = 1, mode = ("iter", 1)):
-        #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
-        #So you can also think of this as the list of matricies of how much the weights need to change
-        #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
-        modeType, modeValue = mode
-        while True:
-            delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
-            for trainingExample in batch:
-                #list of errors in each layer. errors[l-1] is the error of layer l
-                errors = []
-                #activations is the list of activation vectors, the first vector is the one from the input layer (which can be negative and greate than 1).
-                activations = self.getActivations(trainingExample[0])
-                #make the solution a vector
-                y = makeVector(trainingExample[1])
-                #check to make sure solution vector has the right size
-                assert activations[-1].shape==y.shape, "Target vector (solution)\n{}\nmust have the correct number of values. (In this case, {} values.)".format(y, self.architecture[-1])
-                #calculate the error in the last layer and add it to the list of errors
-                error = activations[-1]-y
-                errors.append(error)
+    def train(self, batches, learningRate = 1, mode = ("iter", 1), trainAway = False):
+        def trainBatch(batch, learningRate, mode, trainAway):
+            #returns an ordered list of vectors where each vector is the output error for the example in the batch
+            def getOutputErrors(batch):
+                ans = []
+                for trainingExample in batch:
+                    ans.append(self.getFinalError(*trainingExample))
+                return ans
+             
+            #returns True if every value in item (or item itself if item is just a number) is lower or equal to value.
+            #returns False otherwise
+            def checkLessOrEqualTo(item, value):
+                if hasattr(item, '__iter__'): #item is a list
+                    for val in item:
+                        if val>value:
+                            return False
+                else: #item is a number
+                    if item>value:
+                        return False
+                return True
                 
-                #go backwards through each layer of the net and calculate the error for those
-                #i = (number of layer we're computing the error for) - 1
-                #i is basically just converting from computer to human numbers
-                #starts at the second to last layer and goes all the way to the input layer
-                #(even though it doesn't really need to calculate the error of the input layer)
-                #remember, here, we ignore the bias values in the weight matrix
-                for i in range(len(self.architecture)-2, -1, -1):
-                    #get the activation values of the layer whose error is being computed
-                    activation = activations[i]
-                    
-                    #we have the activation value of our layer
-                    #and the error of the layer in front of us
-                    #so now we can compute the derivative
-                    #and add it to delta
-                    
-                    #Compute the delta, following the formula
-                    deltaChangeWithoutBias = np.matmul(error, np.transpose(activation))
-                    #insert in the delta values for the bias (which is just the error of the layer) as the first column in the matrix
-                    deltaChange = np.insert(deltaChangeWithoutBias, 0, error.flatten(), axis = 1)
-                    #add this deltaChange to the total delta (this is what makes it batch training; the mini deltas are added up)
-                    delta[i] = np.add(delta[i], deltaChange)
-                    
-                    
-                    #take out the bias from the weight matrix going from this layer to the next layer so we can compute the error
-                    noBiasWeightMatrix = np.delete(self.net[i], 0, 1)
-                    #follow the formula to compute the error of the next layer back
-                    error = np.multiply(np.multiply(np.matmul(np.transpose(noBiasWeightMatrix), error), activation), np.subtract(np.ones(activation.shape), activation))
-                    
-                    #add this error to the start of errors
-                    errors.insert(0, error)
-
-                #update the weights
-                for matrixIndex in range(len(self.net)):
-                    self.net[matrixIndex] = np.subtract(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
+            #returns a new list that just averages each output error vector from outputErrors
+            #assumes that each error vector has the same shape
+            def avgExampleErrors(outputErrors):
+                outputNeuronAmt = outputErrors[0].shape[0]
+                return [np.sum(val)*1.0/outputNeuronAmt for val in outputErrors]
                 
-                #figure out if the training is done
-                if modeType=="error":
-                    totalError = np.zeros((len(batch[0][1]), 1))
-                    #add up the error among all the training examples
-                    for trainingExample in batch:
-                        totalError+=self.getFinalError(*trainingExample)
-                    #if the average error is low enough, return
-                    if np.sum(totalError)/totalError.shape[0]<=modeValue:
-                        return
-                elif modeType=="iter":
-                    #next iteration
-                    modeValue-=1
-                    #if we've done enough iterations, return
+            def avgBatchError(outputErrors):
+                return sum(avgExampleErrors(outputErrors))*1.0/len(outputErrors)
+                
+            while True: #continue training on the batch until its mode tells it to return
+                modeType, modeValue = mode #separate the mode out into the type and value
+                outputErrors = getOutputErrors(batch) #returns an ordered list of vectors where each vector is the output error for an example in the batch
+                positiveOutputErrors = [np.absolute(outputError) for outputError in outputErrors]
+                if modeType=="iter": #modeValue is the counter as to how many times the training should run
                     if modeValue<=0:
                         return
+                    else:
+                        modeValue-=1
+                elif modeType=="avg":
+                    if checkLessOrEqualTo(avgExampleErrors(positiveOutputErrors), modeValue):
+                       return
+                elif modeType=="avgAvg":
+                    if checkLessOrEqualTo(avgBatchError(positiveOutputErrors), modeValue):
+                        return
+                elif modeType=="specific":
+                    #go through each outputError
+                    for outputError in positiveOutputErrors:
+                        #make sure that outputError has no values greater than the modeValue
+                        if checkLessOrEqualTo(np.nditer(outputError), modeValue):
+                            return
                 else:
-                    raise RuntimeError("Unrecognized mode type '{}'. Try 'error' or 'iter'".format(modeType))
+                    raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
+                        
+                #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
+                #So you can also think of this as the list of matricies of how much the weights need to change
+                #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
+                delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
+                for exampleNum, trainingExample in enumerate(batch):
+                    error = outputErrors[exampleNum]
+                    #list of errors in each layer. errors[l-1] is the error of layer l
+                    errors = [error]
+                    #activations is the list of activation vectors, the first vector is the one from the input layer (which can be negative and greater than 1).
+                    activations = self.getActivations(trainingExample[0])
+                    
+                    #go backwards through each layer of the net and calculate the error for those
+                    #i = (number of layer we're computing the error for) - 1
+                    #i is basically just converting from computer to human numbers
+                    #starts at the second to last layer and goes all the way to the input layer
+                    #(even though it doesn't really need to calculate the error of the input layer)
+                    #remember, here, we ignore the bias values in the weight matrix
+                    for i in range(len(self.architecture)-2, -1, -1):
+                        #get the activation values of the layer whose error is being computed
+                        activation = activations[i]
+                        
+                        #we have the activation value of our layer
+                        #and the error of the layer in front of us
+                        #so now we can compute the derivative
+                        #and add it to delta
+                        
+                        #Compute the delta, following the formula
+                        deltaChangeWithoutBias = np.matmul(error, np.transpose(activation))
+                        #insert in the delta values for the bias (which is just the error of the layer) as the first column in the matrix
+                        deltaChange = np.insert(deltaChangeWithoutBias, 0, error.flatten(), axis = 1)
+                        #add this deltaChange to the total delta (this is what makes it batch training; the mini deltas are added up)
+                        delta[i] = np.add(delta[i], deltaChange)
+                        
+                        
+                        #take out the bias from the weight matrix going from this layer to the next layer so we can compute the error
+                        noBiasWeightMatrix = np.delete(self.net[i], 0, 1)
+                        #follow the formula to compute the error of the next layer back
+                        error = np.multiply(np.multiply(np.matmul(np.transpose(noBiasWeightMatrix), error), activation), np.subtract(np.ones(activation.shape), activation))
+                        
+                        #add this error to the start of errors
+                        errors.insert(0, error)
     
-    def __str__(self):
-        ans = "Weights:\n"
-        for i, val in enumerate(self.net):
-            ans+=str(val)+"\n"
-        return ans
+                    #update the weights
+                    for matrixIndex in range(len(self.net)):
+                        if trainAway:
+                            funcToUse = np.add #want to train it away from the example, so we add the error
+                        else:
+                            funcToUse = np.subtract #want to train it towards the example, so we subtract the error
+                        self.net[matrixIndex] = funcToUse(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
+        
+        #This is the main part of the function that actually runs
+        for batch in batches:
+            trainBatch(batch, learningRate, mode, trainAway)
+            
+    
+    
 
 if __name__ == "__main__":
     '''
@@ -189,6 +233,7 @@ if __name__ == "__main__":
     n.backProp([([1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1])])
     '''
 
+
     training = ([1, 1, 0, -1, -1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0])
     n = NeuralNet([9, 9, 9, 9])
     w = n.net[0]
@@ -196,7 +241,7 @@ if __name__ == "__main__":
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getFinalError(*training)
-    n.train([training], learningRate = 5, mode = ('error', .001))
+    n.train([[training]], learningRate = 1, mode = ('avg', .001))
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
     #print(oldMatrix)
     #print(n.net)

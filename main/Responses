@@ -48,8 +48,37 @@ sky = LearningNet1([9, 9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, tr
 [2, 1, 2, 2, 6, 3, 4, 7, 3] = 30
 [3, 2, 3, 4, 14, 4, 7, 8, 5] = 50
 
+Playing 1 random [9, 9, 9, 9] net against random players 100 times:
+Lows: [560, 90, 233] #lowest values out of all 100 tests
+Highs: [639, 142, 319] #highest values out of all 100 tests
+Ranges: [79, 52, 86] #the range between the highest and lowest out of all 100 tests
+Averages: [607.52, 114.06, 278.42] #the averages of all 100 tests
+
+Lows: [362, 147, 413]
+Highs: [414, 203, 477]
+Ranges: [52, 56, 64]
+Averages: [385.2, 176.98, 437.82]
+
+Lows: [296, 227, 359]
+Highs: [373, 272, 454]
+Ranges: [77, 45, 95]
+Averages: [338.76, 248.56, 412.68]
 
 
+net = LearningNet1([9, 9, 9, 9], learningRate = 1, trainingMode = ('error', .00000001), trainingGameAmt = 1000)
+Lows: [379, 51, 489]
+Highs: [438, 86, 558]
+Ranges: [59, 35, 69]
+Averages: [408.22, 67.84, 523.94]
 
 
+net = LearningNet1([9, 9, 9, 9], learningRate = 1, trainingMode = ('error', .001), trainingGameAmt = 1000)
+Lows: [284, 61, 552]
+Highs: [364, 92, 625]
+Ranges: [80, 31, 73]
+Averages: [330.04, 77.38, 592.58]
 
+Lows: [340, 62, 504]
+Highs: [404, 114, 575]
+Ranges: [64, 52, 71]
+Averages: [378.44, 82.92, 538.64]
