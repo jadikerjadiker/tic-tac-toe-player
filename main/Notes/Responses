@@ -1,5 +1,17 @@
 Given that the other player went first in the top corner
 
+The trainingMode 'error' was defined by:
+#figure out if the training is done
+if modeType=="error":
+    totalError = np.zeros((len(batch[0][1]), 1))
+    #add up the error among all the training examples
+    for trainingExample in batch:
+        totalError+=self.getFinalError(*trainingExample)
+    #if the average error is low enough, return
+    if np.sum(totalError)/totalError.shape[0]<=modeValue:
+        return
+        
+Essentially, the function made no sense. But anyhow, that's how these were trained. And somehow I got encouraging results.
 sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .001))
 [0, 3, 12, 3, 12, 5, 5, 4, 6] = 50
 

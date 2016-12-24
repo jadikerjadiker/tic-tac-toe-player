@@ -288,7 +288,7 @@ if __name__ == "__main__":
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getFinalError(*training)
-    n.train(bigTraining, learningRate = 1, mode = ('avgAvg', .0001), trainAway = False, comment = True)
+    n.train(bigTraining, learningRate = .1, mode = ('avgAvg', .0001), trainAway = False, comment = True)
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
     print(n.run(bigTraining[0][0][0]))
     print(n.run(training[0]))

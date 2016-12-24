@@ -145,7 +145,7 @@ def playHumanVNeuralNet(net):
                 except:
                     print("That didn't seem to work.")
         else: #computer's turn
-            game.makeMove(net.getMove(game, 1, -1), 1)
+            game.makeMove(net.getMove(game, 1), 1)
         print(game)
         curPlayer*=-1 #other player's turn
     if game.whoWon()==1:
