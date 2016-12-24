@@ -25,8 +25,10 @@ def makeVector(thing):
 All a neural net is is a bunch of weights, going from one layer to the next
 '''
 class NeuralNet:
-    def __init__(self, architecture):
+    def __init__(self, architecture, learningRate = 5, trainingMode = ('avg', .001)):
         self.architecture = architecture
+        self.learningRate = learningRate
+        self.trainingMode = trainingMode
         #create matricies with random values with the correct dimensions (n(l) x n(l-1)+1)
         self.net = [np.random.randn(self.architecture[layerIndex], self.architecture[layerIndex-1]+1) for layerIndex in range(1, len(self.architecture))]
     
@@ -80,7 +82,11 @@ class NeuralNet:
     #"specific": value specifies the maximum average error allowed for each output neuron on each example
     #The net will continue to train on the entire batch until the error is low enough or it has trained enough times (depending on the mode)
     #TODO use normal expressions like '-' and '+' when possible
-    def train(self, batches, learningRate = 1, mode = ("iter", 1), trainAway = False):
+    def train(self, batches, learningRate = None, mode = None, trainAway = False, comment = False):
+        if learningRate==None:
+            learningRate = self.learningRate
+        if mode==None:
+            mode = self.trainingMode
         def trainBatch(batch, learningRate, mode, trainAway):
             #returns an ordered list of vectors where each vector is the output error for the example in the batch
             def getOutputErrors(batch):
@@ -121,10 +127,11 @@ class NeuralNet:
                 
             def avgBatchError(outputErrors):
                 return sum(avgExampleErrors(outputErrors))*1.0/len(outputErrors)
-                
+            
+            modeType, modeValue = mode #separate the mode out into the type and value
             while True: #continue training on the batch until its mode tells it to return
-                modeType, modeValue = mode #separate the mode out into the type and value
                 outputErrors = getOutputErrors(batch) #returns an ordered list of vectors where each vector is the output error for an example in the batch
+                print("Original outputErrors:\n{}".format(outputErrors))
                 positiveOutputErrors = [np.absolute(outputError) for outputError in outputErrors]
                 if modeType=="iter": #modeValue is the counter as to how many times the training should run
                     if modeValue<=0:
@@ -153,14 +160,24 @@ class NeuralNet:
                                 return
                     else:
                         raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
+                if comment:
+                    e = avgExampleErrors(positiveOutputErrors)
+                    #dps
+                    print("Current average example errors: {}".format(e))
+                    #print("Will this pass the test? {}".format(checkLessOrEqualTo(e, modeValue)))
+                    #print("mode: {}".format(mode))
                     
-                        
                 #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
                 #So you can also think of this as the list of matricies of how much the weights need to change
                 #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
                 delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
                 for exampleNum, trainingExample in enumerate(batch):
+                    print("New outputErrors:\n{}".format(outputErrors))
                     error = outputErrors[exampleNum]
+                    import time
+                    print("Here is the error I should be getting:\n{}".format(self.getFinalError(*trainingExample)))
+                    print("Here is the error I got.\n{}".format(error))
+                    time.sleep(.1)
                     #list of errors in each layer. errors[l-1] is the error of layer l
                     errors = [error]
                     #activations is the list of activation vectors, the first vector is the one from the input layer (which can be negative and greater than 1).
@@ -197,13 +214,13 @@ class NeuralNet:
                         #add this error to the start of errors
                         errors.insert(0, error)
     
-                    #update the weights
-                    for matrixIndex in range(len(self.net)):
-                        if trainAway:
-                            funcToUse = np.add #want to train it away from the example, so we add the error
-                        else:
-                            funcToUse = np.subtract #want to train it towards the example, so we subtract the error
-                        self.net[matrixIndex] = funcToUse(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
+                #update the weights
+                for matrixIndex in range(len(self.net)):
+                    if trainAway:
+                        funcToUse = np.add #want to train it away from the example, so we add the error
+                    else:
+                        funcToUse = np.subtract #want to train it towards the example, so we subtract the error
+                    self.net[matrixIndex] = funcToUse(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
         
         #This is the main part of the function that actually runs
         for batch in batches:

@@ -102,32 +102,14 @@ class TicTacToeGame:
         return ans
     
     #returns a new game object that's a copy of the old one but with the player numbers swapped
-    def getConvert(self, conversion):
+    def getConvert(self):
         ans = TicTacToeGame() #make a new game to return, don't edit the old one
         #redo the game with the conversion
         for move in self.movesMade:
             #convert the value, using the original if no conversion is listed
-            ans.makeMove(move[0], move*-1)
-        return ans
-    
-    #returns a new (different) game with the players in the game converted to certain numbers
-    #conversion is a dictionary with keys being the old player number,
-    #and the values being the number it should be converted to    
-    def getConvert(self, conversion):
-        ans = TicTacToeGame() #make a new game to return, don't edit the old one
-        #redo the game with the conversion
-        for move in self.movesMade:
-            #convert the value, using the original if no conversion is listed
-            ans.makeMove(move[0], conversion.get(move[1], move[1]))
+            ans.makeMove(move[0], -move[1])
         return ans
         
-    #converts the players in the game to certain numbers
-    #conversion is a dictionary with keys being the old player number,
-    #and the values being the number it should be converted to 
-    #does not return anything
-    def convert(self, conversion):
-        self = self.getConvert(conversion)
-    
     #returns a copy of the game
     def copy(self):
         ans = TicTacToeGame()
@@ -173,6 +155,47 @@ def playHumanVNeuralNet(net):
     else:
         print("Tie game!")
     return game
+    
+def playHumanVRandom():
+    #figure out who goes first
+    curPlayer = random.choice([-1, 1])
+    game = TicTacToeGame()
+    print("New game!")
+    print(game)
+    while game.whoWon()==None:
+        if curPlayer==-1:
+            while True:
+                try:
+                    game.makeMove(int(raw_input("Where would you like to go? "))-1, -1)
+                    break
+                except:
+                    print("That didn't seem to work.")
+        else: #computer's turn
+            makeRandomMove(game, 1)
+        print(game)
+        curPlayer*=-1 #other player's turn
+    if game.whoWon()==1:
+        print("The computer won!")
+    elif game.whoWon()==-1:
+        print("You won!")
+    else:
+        print("Tie game!")
+    return game    
+
+def playRandomVNeuralNet(net):
+    #figure out who goes first
+    curPlayer = random.choice([-1, 1])
+    game = TicTacToeGame()
+    while game.whoWon()==None:
+        if curPlayer==-1:
+            makeRandomMove(game, -1)
+        else: #computer's turn
+            game.makeMove(net.getMove(game, 1, -1), 1)
+        curPlayer*=-1 #other player's turn
+    return game
                 
-        
+                
+if __name__=="__main__":
+    while True:
+        playHumanVRandom()
     

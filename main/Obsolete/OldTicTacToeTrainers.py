@@ -1,3 +1,5 @@
+#Old Tic Tac Toe Trainers
+
 '''
 First strategy:
 Create random games and play as the winner.
