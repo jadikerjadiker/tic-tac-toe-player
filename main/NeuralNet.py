@@ -89,7 +89,7 @@ class NeuralNet:
                     ans.append(self.getFinalError(*trainingExample))
                 return ans
              
-            #returns True if every value in item (or item itself if item is just a number) is lower or equal to value.
+            #returns True if every value in item (or item itself if item is just a number) is less than or equal to value.
             #returns False otherwise
             def checkLessOrEqualTo(item, value):
                 if hasattr(item, '__iter__'): #item is a list
@@ -98,6 +98,18 @@ class NeuralNet:
                             return False
                 else: #item is a number
                     if item>value:
+                        return False
+                return True
+            
+            #returns True if every value in item (or item itself if item is just a number) is greater or equal to value.
+            #returns False otherwise   
+            def checkGreaterOrEqualTo(item, value):
+                if hasattr(item, '__iter__'): #item is a list
+                    for val in item:
+                        if val<value:
+                            return False
+                else: #item is a number
+                    if item<value:
                         return False
                 return True
                 
@@ -119,20 +131,29 @@ class NeuralNet:
                         return
                     else:
                         modeValue-=1
-                elif modeType=="avg":
-                    if checkLessOrEqualTo(avgExampleErrors(positiveOutputErrors), modeValue):
-                       return
-                elif modeType=="avgAvg":
-                    if checkLessOrEqualTo(avgBatchError(positiveOutputErrors), modeValue):
-                        return
-                elif modeType=="specific":
-                    #go through each outputError
-                    for outputError in positiveOutputErrors:
-                        #make sure that outputError has no values greater than the modeValue
-                        if checkLessOrEqualTo(np.nditer(outputError), modeValue):
-                            return
                 else:
-                    raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
+                    if trainAway:
+                        #want to make sure the error is above a certain level
+                        checker = checkGreaterOrEqualTo
+                    else:
+                        #want to make sure the error is below a certain level
+                        checker = checkLessOrEqualTo
+                    if modeType=="avg":
+                        if checker(avgExampleErrors(positiveOutputErrors), modeValue):
+                            return
+                    elif modeType=="avgAvg":
+                        if checker(avgBatchError(positiveOutputErrors), modeValue):
+                            return
+                    elif modeType=="specific":
+                        #go through each outputError
+                        for outputError in positiveOutputErrors:
+                            print("outputError:{}".format(outputError))
+                            #make sure that outputError has no values greater than the modeValue
+                            if checker(np.nditer(outputError), modeValue):
+                                return
+                    else:
+                        raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
+                    
                         
                 #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
                 #So you can also think of this as the list of matricies of how much the weights need to change
@@ -233,7 +254,7 @@ if __name__ == "__main__":
     n.backProp([([1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1])])
     '''
 
-
+    print("NeuralNet main program started")
     training = ([1, 1, 0, -1, -1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0])
     n = NeuralNet([9, 9, 9, 9])
     w = n.net[0]
@@ -241,7 +262,7 @@ if __name__ == "__main__":
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getFinalError(*training)
-    n.train([[training]], learningRate = 1, mode = ('avg', .001))
+    n.train([[training]], learningRate = 1, mode = ('specific', .1), trainAway = True)
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
     #print(oldMatrix)
     #print(n.net)
