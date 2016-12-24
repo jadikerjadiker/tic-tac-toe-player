@@ -1,4 +1,7 @@
 #Old Tic Tac Toe Trainers
+import NeuralNet
+import TicTacToeGame as tttg
+import random
 
 '''
 First strategy:

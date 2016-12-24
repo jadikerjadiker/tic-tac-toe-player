@@ -82,6 +82,7 @@ class NeuralNet:
     #"specific": value specifies the maximum average error allowed for each output neuron on each example
     #The net will continue to train on the entire batch until the error is low enough or it has trained enough times (depending on the mode)
     #TODO use normal expressions like '-' and '+' when possible
+    #TODO add in checkers to make sure it won't train forever in a loop
     def train(self, batches, learningRate = None, mode = None, trainAway = False, comment = False):
         if learningRate==None:
             learningRate = self.learningRate
@@ -131,7 +132,8 @@ class NeuralNet:
             modeType, modeValue = mode #separate the mode out into the type and value
             while True: #continue training on the batch until its mode tells it to return
                 outputErrors = getOutputErrors(batch) #returns an ordered list of vectors where each vector is the output error for an example in the batch
-                print("Original outputErrors:\n{}".format(outputErrors))
+                #dp
+                #print("Original outputErrors:\n{}".format(outputErrors))
                 positiveOutputErrors = [np.absolute(outputError) for outputError in outputErrors]
                 if modeType=="iter": #modeValue is the counter as to how many times the training should run
                     if modeValue<=0:
@@ -163,7 +165,8 @@ class NeuralNet:
                 if comment:
                     e = avgExampleErrors(positiveOutputErrors)
                     #dps
-                    print("Current average example errors: {}".format(e))
+                    #print("Current average example errors: {}".format(e))
+                    print("Current avgAvg value: {}".format(sum(e)*1.0/len(outputErrors)))
                     #print("Will this pass the test? {}".format(checkLessOrEqualTo(e, modeValue)))
                     #print("mode: {}".format(mode))
                     
@@ -172,12 +175,15 @@ class NeuralNet:
                 #delta[l-1] is the delta matrix that matches with the weight matrix that goes from layer l to layer l+1
                 delta = [np.zeros((self.architecture[layerIndex], self.architecture[layerIndex-1]+1)) for layerIndex in range(1, len(self.architecture))]
                 for exampleNum, trainingExample in enumerate(batch):
-                    print("New outputErrors:\n{}".format(outputErrors))
+                    #dp
+                    #print("New outputErrors:\n{}".format(outputErrors))
                     error = outputErrors[exampleNum]
-                    import time
-                    print("Here is the error I should be getting:\n{}".format(self.getFinalError(*trainingExample)))
-                    print("Here is the error I got.\n{}".format(error))
-                    time.sleep(.1)
+                    #dps
+                    #import time
+                    #print("Here is the error I should be getting:\n{}".format(self.getFinalError(*trainingExample)))
+                    #print("Here is the error I got.\n{}".format(error))
+                    #time.sleep(.1)
+                    
                     #list of errors in each layer. errors[l-1] is the error of layer l
                     errors = [error]
                     #activations is the list of activation vectors, the first vector is the one from the input layer (which can be negative and greater than 1).
@@ -273,13 +279,18 @@ if __name__ == "__main__":
 
     print("NeuralNet main program started")
     training = ([1, 1, 0, -1, -1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0])
+    training2 = ([0, 0, 0, -1, -1, 0, 1, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1])
+    training3 = ([-1, -1, 0, 1, 0, 1, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0])
+    bigTraining = [[([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]), ([0, -1, 0, 0, 0, 0, 0, 0, 1], [0, 0, 1, 0, 0, 0, 0, 0, 0]), ([0, -1, 1, 0, -1, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0]), ([1, -1, 1, -1, -1, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([1, -1, 1, -1, -1, 0, -1, 1, 1], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([0, 0, 0, 0, -1, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0]), ([1, -1, 0, 0, -1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([1, -1, -1, 0, -1, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]), ([1, -1, -1, -1, -1, 0, 0, 1, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([0, 0, -1, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([0, 0, -1, 0, 0, 1, 0, 1, -1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([0, 0, -1, -1, 0, 1, 1, 1, -1], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([-1, 0, -1, -1, 1, 1, 1, 1, -1], [0, 1, 0, 0, 0, 0, 0, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([-1, 0, 0, 0, 1, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0]), ([-1, 1, 0, 0, 1, 0, 0, 0, -1], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, -1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([0, 0, 0, 0, 0, 0, 1, -1, -1], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([-1, 0, 0, 0, 1, 0, 1, -1, -1], [0, 1, 0, 0, 0, 0, 0, 0, 0]), ([-1, 1, 0, -1, 1, 0, 1, -1, -1], [0, 0, 1, 0, 0, 0, 0, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0]), ([0, 0, 1, 0, 0, 0, 0, 0, -1], [1, 0, 0, 0, 0, 0, 0, 0, 0]), ([1, 0, 1, -1, 0, 0, 0, 0, -1], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([1, -1, 1, -1, 0, 1, 0, 0, -1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([1, -1, 1, -1, 0, 1, 1, -1, -1], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]), ([0, 0, 0, 0, 0, 0, 0, -1, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0]), ([1, 0, 0, 0, -1, 0, 0, -1, 1], [0, 0, 1, 0, 0, 0, 0, 0, 0]), ([1, 0, 1, -1, -1, 0, 0, -1, 1], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([0, 0, -1, 0, 0, 0, 0, 1, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0]), ([-1, 0, -1, 1, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([-1, 0, -1, 1, 1, 0, -1, 1, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([0, -1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]), ([0, -1, 0, 0, 0, -1, 0, 0, 1], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([0, -1, 0, -1, 0, -1, 0, 1, 1], [0, 0, 0, 0, 1, 0, 0, 0, 0]), ([-1, -1, 0, -1, 1, -1, 0, 1, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0]), ([0, 0, 0, 0, 0, -1, 0, 0, 0], [1, 0, 0, 0, 0, 0, 0, 0, 0]), ([-1, 0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1]), ([1, 0, 0, 0, 0, -1, 0, 0, -1], [0, 0, 0, 0, 0, 0, 0, 1, 0]), ([-1, 0, 0, 0, 0, 1, 0, -1, 1], [0, 0, 0, 0, 0, 0, 1, 0, 0]), ([1, 0, 0, 0, 0, -1, -1, 1, -1], [0, 0, 1, 0, 0, 0, 0, 0, 0]), ([-1, 0, -1, 0, 0, 1, 1, -1, 1], [0, 1, 0, 0, 0, 0, 0, 0, 0]), ([1, -1, 1, 0, 0, -1, -1, 1, -1], [0, 0, 0, 1, 0, 0, 0, 0, 0]), ([-1, 1, -1, -1, 0, 1, 1, -1, 1], [0, 0, 0, 0, 1, 0, 0, 0, 0])]]
     n = NeuralNet([9, 9, 9, 9])
     w = n.net[0]
     import copy
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getFinalError(*training)
-    n.train([[training]], learningRate = 1, mode = ('specific', .1), trainAway = True)
+    n.train(bigTraining, learningRate = 1, mode = ('avgAvg', .0001), trainAway = False, comment = True)
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
+    print(n.run(bigTraining[0][0][0]))
+    print(n.run(training[0]))
     #print(oldMatrix)
     #print(n.net)

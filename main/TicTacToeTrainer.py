@@ -133,10 +133,10 @@ def testAgainstRandom(net, games = 100, comment = False):
   
 if __name__ == '__main__':
     
-    net = LearningNet3([9, 9, 9, 9], learningRate = 5, trainingMode = ('avgAvg', .1))
+    net = LearningNet3([9, 9, 9, 9], learningRate = .01, trainingMode = ('avgAvg', .01))
     #game = tttg.playHumanVRandom()
     trainingSet = []
-    for i in range(1):
+    for i in range(100):
         trainingSet.append(tttg.makeRandomGame())
     trainingSet = net.makeTrainingSet(trainingSet)
     print(trainingSet)
