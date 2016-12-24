@@ -13,7 +13,6 @@ class TicTacToeGame:
         #where "where" is position of placement and "who" is number used to represent player
         self.movesMade = []
         
-    #todo this can be made so much better
     def __str__(self):
         def convertToStr(num):
             if num==0:
