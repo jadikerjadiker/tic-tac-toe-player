@@ -117,7 +117,9 @@ class TicTacToeGame:
         for move in self.movesMade:
             ans.makeMove(*move)
         return ans
-                        
+
+#just a slightly faster method than play(who = ('random', 'random'))
+#often times random games are used for training so we want this to be fast.
 def makeRandomGame():
     game = TicTacToeGame()
     player = 1
@@ -130,72 +132,60 @@ def makeRandomGame():
 def makeRandomMove(game, player):
     game.makeMove(random.choice(game.getOpenSpaces()), player)
 
-def playHumanVNeuralNet(net):
-    #figure out who goes first
-    curPlayer = random.choice([-1, 1])
-    game = TicTacToeGame()
-    print("New game!")
-    print(game)
-    while game.whoWon()==None:
-        if curPlayer==-1:
-            while True:
-                try:
-                    game.makeMove(int(raw_input("Where would you like to go? "))-1, -1)
-                    break
-                except:
-                    print("That didn't seem to work.")
-        else: #computer's turn
-            game.makeMove(net.getMove(game, 1), 1)
-        print(game)
-        curPlayer*=-1 #other player's turn
-    if game.whoWon()==1:
-        print("The computer won!")
-    elif game.whoWon()==-1:
-        print("You won!")
-    else:
-        print("Tie game!")
-    return game
-    
-def playHumanVRandom():
-    #figure out who goes first
-    curPlayer = random.choice([-1, 1])
-    game = TicTacToeGame()
-    print("New game!")
-    print(game)
-    while game.whoWon()==None:
-        if curPlayer==-1:
-            while True:
-                try:
-                    game.makeMove(int(raw_input("Where would you like to go? "))-1, -1)
-                    break
-                except:
-                    print("That didn't seem to work.")
-        else: #computer's turn
-            makeRandomMove(game, 1)
-        print(game)
-        curPlayer*=-1 #other player's turn
-    if game.whoWon()==1:
-        print("The computer won!")
-    elif game.whoWon()==-1:
-        print("You won!")
-    else:
-        print("Tie game!")
-    return game    
+def makeHumanMove(game, player):
+    while True:
+        try:
+            if player==1:
+                print("You are O")
+            else:
+                print("You are X")
+            game.makeMove(int(raw_input("Where would you like to go? "))-1, player)
+            break
+        except:
+            print("That didn't seem to work.")
 
-def playRandomVNeuralNet(net):
-    #figure out who goes first
+#who is a tuple (player1, player-1)
+#each of the players can either be:
+#'random': random player
+#'human': ask the human to make a move
+#net: pass in a neural net with the method "makeMove(game, player)" to make the move
+def play(who = ("random", "random")):
+    whoToFunction = {"random":makeRandomMove, "human":makeHumanMove}
+    #the functions that should be called when that player wants to move
+    #the first value stays None (so that we can have index 1 and -1 be different)
+    #the value at index 1 is for player 1
+    #the value at index 2 (or -1) is for player -1
+    functions = [None, None, None]
+    anyHumans = False
+    for playerNum, player in enumerate(who):
+        if player=='human':
+            anyHumans = True
+        if isinstance(player, str):
+            functions[playerNum+1] = whoToFunction[player]
+        else:
+            functions[playerNum+1] = player.makeMove
     curPlayer = random.choice([-1, 1])
     game = TicTacToeGame()
+    if anyHumans:
+        print("New game!")
     while game.whoWon()==None:
-        if curPlayer==-1:
-            makeRandomMove(game, -1)
-        else: #computer's turn
-            game.makeMove(net.getMove(game, 1, -1), 1)
+        if anyHumans:
+            print(game)
+        functions[curPlayer](game, curPlayer) #run the function to have the player make their move
         curPlayer*=-1 #other player's turn
+    if anyHumans:
+        print(game)
+        winner = game.whoWon()
+        if winner==1:
+            print("O wins!")
+        elif winner==-1:
+            print("X wins!")
+        else:
+            print("Tie game!")
     return game
                 
                 
 if __name__=="__main__":
     while True:
-        playHumanVRandom()
+        print(play(('random', 'random')))
     

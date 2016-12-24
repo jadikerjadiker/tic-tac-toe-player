@@ -1,7 +1,6 @@
 import numpy as np
 import math #for e^x (math.exp())
 
-#This thing causes some errors to pop up on the side of cloud9, you can just ignore them.  (This works, although I don't understand how or why at this point...)
 @np.vectorize #turns it into a function that can be applied element-wise on a column vector
 def sigmoid(num):
     try:
@@ -89,6 +88,9 @@ class NeuralNet:
         if mode==None:
             mode = self.trainingMode
         def trainBatch(batch, learningRate, mode, trainAway):
+            #dp
+            print("Training batch")
+            print("Mode:{}".format(mode))
             #returns an ordered list of vectors where each vector is the output error for the example in the batch
             def getOutputErrors(batch):
                 ans = []
@@ -150,9 +152,10 @@ class NeuralNet:
                     if modeType=="avg":
                         if checker(avgExampleErrors(positiveOutputErrors), modeValue):
                             return
-                    elif modeType=="avgAvg":
-                        if checker(avgBatchError(positiveOutputErrors), modeValue):
-                            return
+                    #TODO uncomment
+                    #elif modeType=="avgAvg":
+                    #    if checker(avgBatchError(positiveOutputErrors), modeValue):
+                    #        return
                     elif modeType=="specific":
                         #go through each outputError
                         for outputError in positiveOutputErrors:

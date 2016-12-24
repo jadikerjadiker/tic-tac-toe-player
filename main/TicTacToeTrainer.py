@@ -21,8 +21,9 @@ Third strategy:
 Have the neural net play against random nets and then learn from those games.
 '''
 class LearningNet3(NeuralNet.NeuralNet):
-    def __init__(self, architecture, learningRate = 1, trainingMode = ('avg', .01)):
+    def __init__(self, architecture, learningRate = 1, trainingMode = ('avg', .01), examplesPerBatch = 10):
         NeuralNet.NeuralNet.__init__(self, architecture, learningRate = learningRate, trainingMode = trainingMode)
+        self.examplesPerBatch = examplesPerBatch #TODO see if this should be moved to NeuralNet
         self.version = 3
     
     '''
@@ -51,12 +52,6 @@ class LearningNet3(NeuralNet.NeuralNet):
         if not hasattr(gameList, "__iter__"):
             gameList = [gameList] #it used to be a single game, so now we're just making it into a list
         for game in gameList:
-            #if we've added the right amount of games to the batch
-            if batchCountdown==0:
-                ans.append(batch) #add the batch to the final training set
-                batch = [] #this actually reassigns batch to a new list, not overwriting the old one
-                batchCountdown = examplesPerBatch #reset the counter
-                
             winner = game.whoWon()
             assert winner!=None, "The game must be finished in order to make a training set out of it. Here is the game:\n{}".format(game)
             
@@ -69,6 +64,11 @@ class LearningNet3(NeuralNet.NeuralNet):
             #see if player 1 goes first
             myMove = (1==game.movesMade[0][1])
             for move in game.movesMade:
+                #if we've added the right amount of games to the batch
+                if batchCountdown==0:
+                    ans.append(batch) #add the batch to the final training set
+                    batch = [] #this actually reassigns batch to a new list, not overwriting the old one
+                    batchCountdown = examplesPerBatch #reset the counter
                 if myMove: #if player 1 is going
                     oneHotMove = [0]*9
                     oneHotMove[move[0]] = 1
@@ -104,14 +104,30 @@ class LearningNet3(NeuralNet.NeuralNet):
                 topVal = responses[openSpace]
                 ans = openSpace
         return ans
+        
+    def makeMove(self, game, player):
+        game.makeMove(self.getMove(game, player), player)
     
-    def go(self, gamesToPlay = 100, comment = False):
-        for gameNum in range(gamesToPlay):
-            game = tttg.playHumanVNeuralNet(self)
-            if game.whoWon():
-                print("Training...")
-                self.train(self.makeTrainingSet(game), learningRate = self.learningRate, mode = self.trainingMode)
-                print("Training complete!")
+    def go(self, gamesPerRound = 100, rounds = 5, comment = False):
+        games = []
+        for roundNum in range(rounds):
+            for gameNum in range(gamesPerRound):
+                games.append(tttg.play(who = (self, 'random')))
+            for game in games:
+                print(game)
+            print("Training Round {}...".format(roundNum+1))
+            self.train(self.makeTrainingSet(games, examplesPerBatch = self.examplesPerBatch), learningRate = self.learningRate, mode = self.trainingMode, comment = True)
+            print("Training complete!")
+            #TODO add in "Sorry, I couldn't understand that" stuff
+            if raw_input("Would you like to play against the net? (y/n) ").lower()=='y':
+                while True:
+                    tttg.play(('human', net))
+                    if raw_input("Would you like to play again? (y/n) ").lower()=='n':
+                        break
+        print("All training is complete! You can just play now.")
+        while True:
+            tttg.play(('human', 'human'))
+            
 
 def testAgainstRandom(net, games = 100, comment = False):
     results = [0]*3 #[losses, ties, wins] for the net
@@ -136,7 +152,8 @@ def testAgainstRandom(net, games = 100, comment = False):
                 
   
 if __name__ == '__main__':
-    net = LearningNet3([9, 9, 9, 9], learningRate = 1, trainingMode = ('avgAvg', .01))
+    #TODO fix the error amount changes based on what I set it to.
+    net = LearningNet3([9, 9, 9, 9], learningRate = .1, trainingMode = ('avgAvg', .125))
     net.go()
     '''
     net = LearningNet3([9, 9, 9, 9], learningRate = .01, trainingMode = ('avgAvg', .01))
