@@ -87,10 +87,7 @@ class NeuralNet:
             learningRate = self.learningRate
         if mode==None:
             mode = self.trainingMode
-        def trainBatch(batch, learningRate, mode, trainAway):
-            #dp
-            print("Training batch")
-            print("Mode:{}".format(mode))
+        def trainBatch(batch, learningRate, mode, trainAway, comment):
             #returns an ordered list of vectors where each vector is the output error for the example in the batch
             def getOutputErrors(batch):
                 ans = []
@@ -152,10 +149,9 @@ class NeuralNet:
                     if modeType=="avg":
                         if checker(avgExampleErrors(positiveOutputErrors), modeValue):
                             return
-                    #TODO uncomment
-                    #elif modeType=="avgAvg":
-                    #    if checker(avgBatchError(positiveOutputErrors), modeValue):
-                    #        return
+                    elif modeType=="avgAvg":
+                        if checker(avgBatchError(positiveOutputErrors), modeValue):
+                            return
                     elif modeType=="specific":
                         #go through each outputError
                         for outputError in positiveOutputErrors:
@@ -165,13 +161,9 @@ class NeuralNet:
                                 return
                     else:
                         raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
-                if comment:
+                if comment>1:
                     e = avgExampleErrors(positiveOutputErrors)
-                    #dps
-                    #print("Current average example errors: {}".format(e))
                     print("Current avgAvg value: {}".format(sum(e)*1.0/len(outputErrors)))
-                    #print("Will this pass the test? {}".format(checkLessOrEqualTo(e, modeValue)))
-                    #print("mode: {}".format(mode))
                     
                 #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
                 #So you can also think of this as the list of matricies of how much the weights need to change
@@ -232,9 +224,17 @@ class NeuralNet:
                     self.net[matrixIndex] = funcToUse(self.net[matrixIndex], np.multiply(learningRate, delta[matrixIndex]))
         
         #This is the main part of the function that actually runs
-        for batch in batches:
-            trainBatch(batch, learningRate, mode, trainAway)
-            
+        for i, batch in enumerate(batches):
+            if comment>0:
+                print("Training batch {}".format(i+1))
+            trainBatch(batch, learningRate, mode, trainAway, comment)
+    
+    #trains the net towards a certain list of batches, and away from another list of batches.
+    #towardsAndAway is a tuple (towards, away) where towards is a list of batches it should train towards...
+    #and away is a list of batches it should train away from.
+    def trainTowardsAndAway(self, towardsAndAway, learningRate = None, mode = None, comment = False):
+        self.train(towardsAndAway[0], learningRate = learningRate, mode = mode, trainAway = False, comment = comment)
+        self.train(towardsAndAway[1], learningRate = learningRate, mode = mode, trainAway = True, comment = comment)
     
     
 
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     oldMatrix = copy.deepcopy(n.net)
     beforeResponse = n.run(training[0])
     beforeError = n.getFinalError(*training)
-    n.train(bigTraining, learningRate = .1, mode = ('avgAvg', .0001), trainAway = False, comment = True)
+    n.train(bigTraining, learningRate = .025, mode = ('avgAvg', .01), trainAway = False, comment = True)
     print("beforeResponse:\n{}\nnewResponse:\n{}\nbeforeError:\n{}\nnewError:\n{}".format(beforeResponse, n.run(training[0]), beforeError, n.getFinalError(*training)))
     print(n.run(bigTraining[0][0][0]))
     print(n.run(training[0]))

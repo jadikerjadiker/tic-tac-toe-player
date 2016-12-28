@@ -11,7 +11,10 @@ if modeType=="error":
     if np.sum(totalError)/totalError.shape[0]<=modeValue:
         return
         
-Essentially, the function made no sense. But anyhow, that's how these were trained. And somehow I got encouraging results.
+Anyhow, that's how these were trained. And somehow I got encouraging results.
+The method would have been called "avgSum" with the naming scheme described in "Thinking"
+
+
 sky = LearningNet1([9, 9, 9, 9], trainingGameAmt = 1000, learningRate = 1, trainingMode = ('error', .001))
 [0, 3, 12, 3, 12, 5, 5, 4, 6] = 50
 
@@ -94,3 +97,59 @@ Lows: [340, 62, 504]
 Highs: [404, 114, 575]
 Ranges: [64, 52, 71]
 Averages: [378.44, 82.92, 538.64]
+
+net = LearningNet3([9, 9, 9, 9], learningRate = .1, trainingMode = ('avgAvg', .15), examplesPerBatch = 1)
+net.go(gamesPerRound = 500, rounds = 2, comment = False)
+Lows: [304, 50, 573]
+Highs: [368, 84, 628]
+Ranges: [64, 34, 55]
+Averages: [334.56, 67.08, 598.36]
+
+Lows: [140, 45, 757]
+Highs: [181, 71, 810]
+Ranges: [41, 26, 53]
+Averages: [161.48, 57.3, 781.22]
+
+Lows: [340, 107, 440]
+Highs: [427, 162, 508]
+Ranges: [87, 55, 68]
+Averages: [389.58, 134.34, 476.08]
+
+net = LearningNet3([9, 9, 9, 9], learningRate = .1, trainingMode = ('avgAvg', .05), examplesPerBatch = 1)
+net.go(gamesPerRound = 500, rounds = 2, comment = True)
+Lows: [263, 91, 570]
+Highs: [330, 128, 625]
+Ranges: [67, 37, 55]
+Averages: [295.94, 113.28, 590.78]
+
+Lows: [273, 4, 645]
+Highs: [341, 22, 714]
+Ranges: [68, 18, 69]
+Averages: [309.66, 12.32, 678.02]
+
+Lows: [334, 122, 429]
+Highs: [406, 180, 511]
+Ranges: [72, 58, 82]
+Averages: [366.42, 155.44, 478.14]
+
+Lows: [405, 186, 315]
+Highs: [468, 248, 377]
+Ranges: [63, 62, 62]
+Averages: [435.96, 218.76, 345.28]
+
+Lows: [234, 43, 642]
+Highs: [297, 83, 707]
+Ranges: [63, 40, 65]
+Averages: [264.28, 64.64, 671.08]
+
+Lows: [173, 116, 623]
+Highs: [236, 149, 692]
+Ranges: [63, 33, 69]
+Averages: [210.44, 134.94, 654.62]
+
+net = LearningNet3([9, 9, 9, 9], learningRate = .0001, trainingMode = ('avgAvg', .198), examplesPerBatch = None)
+net.go(gamesPerRound = 1000, rounds = 1, comment = 3)
+Lows: [420, 124, 373]
+Highs: [476, 172, 434]
+Ranges: [56, 48, 61]
+Averages: [445.72, 149.7, 404.58]

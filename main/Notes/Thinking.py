@@ -185,3 +185,25 @@ Summing makes no sense because if you're going to have different batch sizes, th
 And if you're not going to have different batch sizes, you can just use the average.
 So, I'm getting rid of 'sumAvg', 'avgSum', 'sumSum', and 'sum'
 '''
+
+'''
+An idea that I had before that I think would work well but hadn't written down is that...
+there should be multiple nets, each one training on a certain number move.
+So the first net trains on the first move, second net trains on the second move, etc.
+
+I think we'll get better results that way, much like the 2-lane road needed a different net...
+to drive than the 1-lane road in the Coursera video example
+'''
+
+'''
+The way I've been doing this so far has been really not that smart.
+
+I've been expecting the computer to learn from random games, and training to play as the winner
+But honestly, at the start of the game, the random players make really stupid moves.
+So training them to play at the start like the random players do is just really bad.
+
+Right now, the best thing I can think of is to allow a high amount of error...
+so that it can unlearn bad moves at the start.
+But I'm pretty sure that won't work either. Idk how I'm going to do this.
+It's an interesting problem.
+'''
