@@ -207,3 +207,45 @@ so that it can unlearn bad moves at the start.
 But I'm pretty sure that won't work either. Idk how I'm going to do this.
 It's an interesting problem.
 '''
+
+'''
+Similar to that last block of thinking, after more experimentation I've found my implementation probably isn't wrong.
+
+Even though it's training towards the data it still sometimes performs worse (on its own training set).
+
+So while that is odd, I think it's mainly because the data makes no sense.
+
+I'm having it play random games. These random games make no sense as to why one would allow you to win,...
+as opposed to another.
+A human learning to play from these games would be comfused as well...
+since they probably contain at least two completely contradictory examples where one says one way is correct and the other says the other way is correct.
+
+In short, the computer is learning from terrible players who don't know what they're doing.
+
+So how do I get some good data for the computer to learn from?
+
+One way is to have it play against a human, or create my own set of data and see how it does.
+
+But the thing that's interesting to me is not to see if it can learn from the best and be the best,...
+but if it can learn from the worst and be the best.
+
+So how do I get it to learn better?
+
+I want it to only know what a win is and what a loss is and go from there.
+'''
+
+'''
+So I've looked up how Alpha Go works, and some machine learning techniques, especially reinforcement learning.
+
+It seems like the way to go is to use a neural net to train on a policy set using Sutton and Barto's work.
+
+Then, if I want to go super far, be like Google and train two neural policy networks and have them play against each other mostly greedily.
+
+Use those values to update as well.
+
+Then, find some combo of the two that seems to work.
+
+Maybe one of the nets is really big and the other is really small, so one goes fast and the other is a tiny bit slower, kinda like Google's?
+
+Idk yet.
+'''

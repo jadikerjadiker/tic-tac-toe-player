@@ -149,31 +149,30 @@ def makeHumanMove(game, player):
 #'random': random player
 #'human': ask the human to make a move
 #net: pass in a neural net with the method "makeMove(game, player)" to make the move
-def play(who = ("random", "random")):
+def play(who = ("random", "random"), comment = 0):
     whoToFunction = {"random":makeRandomMove, "human":makeHumanMove}
     #the functions that should be called when that player wants to move
     #the first value stays None (so that we can have index 1 and -1 be different)
     #the value at index 1 is for player 1
     #the value at index 2 (or -1) is for player -1
     functions = [None, None, None]
-    anyHumans = False
     for playerNum, player in enumerate(who):
         if player=='human':
-            anyHumans = True
+            comment = 1
         if isinstance(player, str):
             functions[playerNum+1] = whoToFunction[player]
-        else:
+        else: #net or any other class with a "makeMove" function
             functions[playerNum+1] = player.makeMove
     curPlayer = random.choice([-1, 1])
     game = TicTacToeGame()
-    if anyHumans:
+    if comment:
         print("New game!")
     while game.whoWon()==None:
-        if anyHumans:
+        if comment:
             print(game)
         functions[curPlayer](game, curPlayer) #run the function to have the player make their move
         curPlayer*=-1 #other player's turn
-    if anyHumans:
+    if comment:
         print(game)
         winner = game.whoWon()
         if winner==1:

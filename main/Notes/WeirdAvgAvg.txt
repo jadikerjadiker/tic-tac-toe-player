@@ -361,3 +361,40 @@ Current avgAvg value: 0.185830514772
 Current avgAvg value: 0.184344642665
 Current avgAvg value: 0.186051862295
 Current avgAvg value: 0.183940534718
+
+So this one trained and then performed worse on its own training batch even though it was getting closer...
+Training batch 1
+Current avgAvg value: 0.427179291395
+Current avgAvg value: 0.426306161345
+Current avgAvg value: 0.425432719957
+Current avgAvg value: 0.424559002867
+Current avgAvg value: 0.423685046307
+Current avgAvg value: 0.422810887094
+Current avgAvg value: 0.421936562618
+Current avgAvg value: 0.421062110824
+Current avgAvg value: 0.420187570201
+Current avgAvg value: 0.419312979763
+Current avgAvg value: 0.418438379036
+Current avgAvg value: 0.417563808036
+Current avgAvg value: 0.416689307253
+Current avgAvg value: 0.415814917634
+Current avgAvg value: 0.41494068056
+Current avgAvg value: 0.414066637828
+Current avgAvg value: 0.413192831631
+Current avgAvg value: 0.412319304536
+Current avgAvg value: 0.411446099462
+Current avgAvg value: 0.410573259656
+Current avgAvg value: 0.409700828675
+Current avgAvg value: 0.408828850358
+Current avgAvg value: 0.407957368808
+Current avgAvg value: 0.407086428361
+Current avgAvg value: 0.40621607357
+Current avgAvg value: 0.405346349173
+Current avgAvg value: 0.404477300077
+Current avgAvg value: 0.403608971323
+Current avgAvg value: 0.402741408072
+Current avgAvg value: 0.401874655571
+Current avgAvg value: 0.401008759135
+Current avgAvg value: 0.400143764116
+Current avgAvg value: 0.399279715884
+[-0.0022] #performed .22% worse after training than before

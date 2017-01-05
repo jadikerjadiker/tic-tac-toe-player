@@ -134,6 +134,9 @@ class NeuralNet:
                 #dp
                 #print("Original outputErrors:\n{}".format(outputErrors))
                 positiveOutputErrors = [np.absolute(outputError) for outputError in outputErrors]
+                if comment>1:
+                    e = avgExampleErrors(positiveOutputErrors)
+                    print("Current avgAvg value: {}".format(sum(e)*1.0/len(outputErrors)))
                 if modeType=="iter": #modeValue is the counter as to how many times the training should run
                     if modeValue<=0:
                         return
@@ -161,9 +164,6 @@ class NeuralNet:
                                 return
                     else:
                         raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
-                if comment>1:
-                    e = avgExampleErrors(positiveOutputErrors)
-                    print("Current avgAvg value: {}".format(sum(e)*1.0/len(outputErrors)))
                     
                 #The list containing the matricies of derivatives. At the end we subtract these matricies from the weight matricies
                 #So you can also think of this as the list of matricies of how much the weights need to change
@@ -232,9 +232,19 @@ class NeuralNet:
     #trains the net towards a certain list of batches, and away from another list of batches.
     #towardsAndAway is a tuple (towards, away) where towards is a list of batches it should train towards...
     #and away is a list of batches it should train away from.
-    def trainTowardsAndAway(self, towardsAndAway, learningRate = None, mode = None, comment = False):
-        self.train(towardsAndAway[0], learningRate = learningRate, mode = mode, trainAway = False, comment = comment)
+    def trainBoth(self, towardsAndAway, learningRate = None, mode = None, comment = False):
+        #set defaults
+        if learningRate==None:
+            learningRate = self.learningRate
+        if mode == None:
+            mode = self.trainingMode
+        
+        #train away   
         self.train(towardsAndAway[1], learningRate = learningRate, mode = mode, trainAway = True, comment = comment)
+        
+        #train towards
+        self.train(towardsAndAway[0], learningRate = learningRate, mode = mode, trainAway = False, comment = comment)
+        
     
     
 
