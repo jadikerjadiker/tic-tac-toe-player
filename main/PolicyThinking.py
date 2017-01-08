@@ -203,3 +203,46 @@ I can't imagine having a situation in which we have the policy player play on an
 But, the parameter to the training function should allow a list of exploratory moves just in case something like that does happen.
 (It will just default to be the player's property)
 '''
+
+'''
+As I began thinking about transitioning over to Chopsticks (now that I've gotten results like an average of 1.56 losses out of 1000 games)
+I realized that Chopsticks has to keep track of if it's in a repeat position.
+In other words, the policies depend on the board state, not just the moves that got it there.
+Then, I realized that tic-tac-toe is the same way.
+The move sequence (in human numbers) (3, 9, 1) should not differ from (1, 9, 3),
+...yet to the policy player I currently have, they're completely different positions.
+So it may make it much more efficient.
+What I want to calculate is how many fewer positions the player will have to learn.
+Actually, there's no way to easily count how many the old one had.
+If we estimate that games end (on average) in 5 turns (even though this is the shortest game possible),
+...then it had 9^5 = 3^10 = 59049 positions
+The one I will make that just looks at the board will have (at most) 3^9 = 19683 positions.
+The difference is 39366 positions. And that's between the min of the old and the max of the new.
+I think adding in the board functionality would be a "game changer" :)
+'''
+
+'''
+So, it's a weird way of doing it, but I totally could just index the policy 9 times.
+The first index is 0, 1, or 2 depending on who's in position 0, etc.
+
+Nah, that's just weird. I'm better off having a table of who is where, where -1 is opponent and 1 is self.
+
+So the moves in spots (3, 9, 1), if the policy player went first, would be [0, 0, 1, 0, 0, 0, 0, 0, 0], etc.
+You know what? That looks like a one-hot. Let's just use dictionaries. So it becomes a dict like
+(switching over to computer numbers, so the moves are now (2, 8, 0))
+{2:1}, {2:1, 8:-1}, {0:1, 2:1, 8:-1}
+But that also makes it so that if I have a trace, I can't just get the dict. Wait, can I?
+Is there a way to index something with a dictionary?
+Not that I can find.
+
+The best method right now is seeming to be converting the game into a string or a number.
+Probably a string, but to the game I don't think it really matters.
+
+So I guess converting the game to a string is the best method right now.
+It seems so SQL data-like though to be converting this object (the board) into a string.
+Wait. Why don't I just use the actual board? I mean, yes it's a like a one-hot,
+...as mentioned before, but honestly, then I can just use the board of the game!
+Totally makes sense.
+No wait, but since it's a list, I can't use it as an index easily.
+String is the best choice.
+'''
