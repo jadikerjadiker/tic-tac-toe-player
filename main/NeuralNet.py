@@ -236,7 +236,7 @@ class NeuralNet:
         #set defaults
         if learningRate==None:
             learningRate = self.learningRate
-        if mode == None:
+        if mode is None:
             mode = self.trainingMode
         
         #train away   

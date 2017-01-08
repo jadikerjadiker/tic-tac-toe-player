@@ -136,5 +136,70 @@ Since there was nothing there before, you should just be able to add them in;
 
 But if there's more than one game going on, then things get tricky because you can either average them,
 ...or just take them from one player's side, or other options.
-For now, I think I'll just stick with the "play one game against a greedy version of yourself, and if the greedy version has to go someplace new during the game, incorporate it into yourself."
+For now, I think I'll just stick with the
+..."play one game against a greedy version of yourself, and if the greedy version has to go someplace new during the game, incorporate it into yourself."
+Note that "going someplace new" is not exploring. Even a completely greedy player can be put in a new position on which it has no info
+'''
+
+'''
+So I've reread the Sutton version (http://webdocs.cs.ualberta.ca/~sutton/book/ebook/), and it doesn't seem all that smart.
+In his version, it appears that if you make a greedy move, then an exploratory move, the initial position's value moves closer to the position after the greedy move,
+...even though the greedy move wasn't updated with any new data. I think that's ridiculous. I shouldn't be reinforcing choices with no new data.
+
+What that's telling the computer is "If this position is good, then it's a solid choice if I keep on exploring, if it's bad, it's a terrible choice if I keep on exploring."
+How good a spot is should have nothing to do with exploring. It should have to do with whether or not you win if you play your best from that position.
+
+What good does two explorations in a row do in Sutton's? You would have learned more if you just did 1.
+
+So, I think for mine, I want it to only update the stuff that happens after the first exploration.
+And, in addition, the policy player should only explore once in a given game.
+Will that cut down on my chances of finding good combos?
+I honestly don't know. But I also don't understand how exploring twice would help me to exploit the combo.
+Maybe it's because then if I won it would become the greedy option on that new exploration the next time.
+That makes sense.
+
+So I guess I'm okay with exploring more than once.
+Another reason why I like that is because it's really hard to figure out what a good exploration rate would be
+...if you can only explore once. Does it increase over each game so the more moves the more likely, or what?
+
+So yeah, I'm deviating slightly from Sutton by only updating up to the last exploring move.
+
+Sutton also seems to be saying that we should be updating after every move,
+...whereas the student's paper's progam appears to only update after the entire game is complete.
+I like updating only after the game is complete. It makes sense that the first move, not just the second to last move,
+...should be given credit for a win
+'''
+
+'''
+Given these choices I've made, what are the things the computer needs to know to update its policies?
+
+1. The moves taken by at least one player and the value of the final state for that player (the "reward")
+2. The last exploratory move made by that player.
+
+To make things easier, let's make a method that just updates based on its last play, given how the game turned out.
+Then, all I need to know is the trace from the last move the computer made and the game
+But it seems silly to rely on something like that in case I want to change it later.
+I'd much rather just pass it the game and its number and make it learn from that.
+That way, it's more modifiable.
+
+But, I also need the last exploratory move.
+I think the easiest way to do that is to have a list of all the exploratory moves in the game.
+(That way, if I use this function to update from the other player, their exploratory moves are already in the list.
+...And it also helps if I decide to do more updating (like, before an exploratory move) later on)
+
+So then how does the PolicyPlayer know what moves were exploratory or not?
+Maybe it keeps track in its own property of the exploratory moves it made in the last game?
+But the makeMove function just takes a game with no indication as to whether or not it is new.
+So it won't know if it's getting a new game or an old game.
+
+But this update function could clear a property with a list of exploratory moves once it's done using them.
+And the class can tell if it's a new game (just not a partial game to a partial game)
+
+I like the update function just using whatever is on the list.
+It's a little wild because there's no real way to control what's on the list (what happens if it doesn't update after every game?)
+
+I think having the makeMove function deal with checking to see if it's a new game will work out best.
+I can't imagine having a situation in which we have the policy player play on and train from an already played board.
+But, the parameter to the training function should allow a list of exploratory moves just in case something like that does happen.
+(It will just default to be the player's property)
 '''

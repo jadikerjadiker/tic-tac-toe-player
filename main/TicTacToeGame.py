@@ -1,4 +1,6 @@
 import random
+import UsefulThings as useful
+useful.assertPython3()
 
 class IllegalMove(RuntimeError):
     pass
@@ -139,7 +141,7 @@ def makeHumanMove(game, player):
                 print("You are O")
             else:
                 print("You are X")
-            game.makeMove(int(raw_input("Where would you like to go? "))-1, player)
+            game.makeMove(int(input("Where would you like to go? "))-1, player)
             break
         except:
             print("That didn't seem to work.")

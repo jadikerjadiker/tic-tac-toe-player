@@ -2,6 +2,7 @@ import NeuralNet
 import TicTacToeGame as tttg
 import random
 import LogicalPlayer as lp
+import UsefulThings as useful
 
 '''
 The goal of this is to create a neural network that will learn how to play tic-tac-toe.
@@ -135,10 +136,10 @@ class LearningNet3(NeuralNet.NeuralNet):
                 print("Training complete!")
                 print("Testing against random players now.")
             if playAfterRound:
-                if askYesOrNo("Would you like to play against the net?"):
+                if useful.askYesOrNo("Would you like to play against the net?"):
                     while True:
                         tttg.play(('human', self))
-                        if not askYesOrNo("Would you like to play again?"):
+                        if not useful.askYesOrNo("Would you like to play again?"):
                             break
         if comment>0:
             print("All training is complete!")
@@ -278,10 +279,10 @@ class LearningNet4(NeuralNet.NeuralNet):
             if comment>1:
                 print("Training complete!")
             if playAfterRound:
-                if askYesOrNo("Would you like to play against the net?"):
+                if useful.askYesOrNo("Would you like to play against the net?"):
                     while True:
                         tttg.play(('human', net))
-                        if not askYesOrNo("Would you like to play again?"):
+                        if not useful.askYesOrNo("Would you like to play again?"):
                             break
         if comment>0:
             print("All training is complete!")
@@ -408,10 +409,10 @@ class LearningNet5(NeuralNet.NeuralNet):
             if comment>1:
                 print("Training complete!")
             if playAfterRound:
-                if askYesOrNo("Would you like to play against the net?"):
+                if useful.askYesOrNo("Would you like to play against the net?"):
                     while True:
                         tttg.play(('human', self))
-                        if not askYesOrNo("Would you like to play again?"):
+                        if not useful.askYesOrNo("Would you like to play again?"):
                             break
         if comment>0:
             print("All training is complete!")
@@ -419,19 +420,6 @@ class LearningNet5(NeuralNet.NeuralNet):
             print("You can just play now.")
             while True:
                 tttg.play(('human', self))
-
-def askYesOrNo(question):
-    while True:
-        try:
-            ans = raw_input(question+" (y/n) ").lower()
-            if ans in ['y', 'yes', 'yeah', 'yep']:
-                return True
-            elif ans in ['n', 'no', 'nope']:
-                return False
-            else:
-                raise RuntimeError("Bad input")
-        except:
-            print("Answer was not 'y' or 'n'.")
 
 def testAgainst(net, batches, comment = False):
     if comment>0:

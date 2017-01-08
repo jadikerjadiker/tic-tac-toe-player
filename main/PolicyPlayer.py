@@ -71,30 +71,93 @@ class Policy:
 
 class PolicyPlayer:
     def __init__(self, exploreRate = 0, learningRate = 1):
+        self.rewards = [0, 1, 1] #reward for [loss, tie, win]
         self.policy = Policy()
-    
+        self.exploreRate = exploreRate
+        self.learningRate = learningRate
+        #[game, playerNumber, exploreMoves]
+        #exploreMoves is a list of the moves that were explore moves in the most recent game it played.
+        #...0 corresponds to the first move.
+        self.curGameInfo = [None, None, []] 
+
     #takes the game
     def makeMove(self, game, me):
-        trace = []
-        curPolicy = self.policy 
-        for move in game.movesMade():
-            moveNumber = move[0]
-            trace.append(moveNumber)
-            try:
-                policy = curPolicy[moveNumber] #get the policy for that move
-            except KeyError:
-                self.policy.addSubpolicy(moveNumber)
-                curPolicy = curPolicy[moveNumber]
+        policy = self.getPolicy([move[0] for move in game.movesMade])
         explore = random.random()<self.exploreRate
+        moveIndex = len(game.movesMade)
+        if moveIndex<=1: #new game; rewrite self.curGameInfo
+            self.curGameInfo = [game, me, []]
+        if explore: #add the explore move to the exploreMoves list
+            self.curGameInfo[2].append(moveIndex)
+        game.makeMove(policy.suggest(explore = explore), me)
+        
+    #given a list of move positions made in a game (index 0 of a move)
+    #...returns the policy for that list
+    #Creates policies for positions it hasn't explored yet
+    def getPolicy(self, moveList):
+        policy = self.policy
+        for move in moveList:
+            try:
+                policy = policy[move] #get the policy for that move
+            except KeyError: #this policy doesn't exist yet
+                policy.addSubpolicy(move) #make the new policy
+                policy = policy[move] #get the new policy
+                
+        return policy
+    
+    #Updates the policies based on the gameInfo
+    #Only updates for one player in the game
+    #gameInfo should be in the form [game, me, exploreMoves]
+    #game is the game you want it to update with
+    #me is the player you want it to update as
+    #exploreMoves is a list of exploratory moves made by the player
+    #...where 1 corresponds to the second move in the game
+    def update(self, gameInfo = None):
+        if gameInfo is None:
+            gameInfo = self.curGameInfo
+        game, me, exploreMoves = gameInfo
+        winner = game.whoWon()
+        wentLast = False #whether or not I made the last move in the game
+        rewardIndex = 0 #index to get value from self.rewards, default to loss
+        if winner == me: #updating from a  win
+            rewardIndex = 2
+            wentLast = True
+        elif winner == 0: #tie
+            rewardIndex = 1
+            wentLast = None #can't tell if I went last yet
+        reward = self.rewards[rewardIndex]
+        if wentLast==None:
+            #check the last move and see if I was the one who made it
+            wentLast = game.movesMade[-1][1]==me
+        
+        trace = [moveAndPlayer[0] for moveAndPlayer in game.movesMade] #get a list of the moves made in the game
+        if not wentLast:
+            trace = trace[:-1]
+        updateVal = reward
+        
+        while len(trace)>0:
+            #the value dict of the policy we're updating
+            policyValues = self.getPolicy(trace[:-1]).values
+            #the particular move we're updating
+            move = trace[-1]
+            #the previous, or 'past' value of that move
+            pastVal = policyValues[move]
+            #do the update
+            updateVal = pastVal + self.learningRate*(updateVal - pastVal)
+            policyValues[move] = updateVal
+            #go to the next move
+            trace = trace[:-2] #this will not raise an exception if trace is too small
             
         
-
 if __name__ == "__main__":
-    p = Policy()
-    p.values = {1:3, 2:4, 6:1, 9:10, 7:10, 5:10}
-    print(p)
-    p.update(1, 10, .5)
-    print(p)
-    p.addSubpolicy(1)
-    print(p[1])
-    print(p)
+    import TicTacToeGame as tttg
+    import timeit
+    #timeit.timeit(stmt = "for i in range(100): g = tttg.play(who = ('random', p));p.update()")
+    p = PolicyPlayer(exploreRate = 0, learningRate = .5)
+    gamesToPlay = 100000
+    for i in range(gamesToPlay):
+        print("Playing game {}/{}".format(i+1, gamesToPlay))
+        g = tttg.play(who = ('random', p))
+        p.update()
+    while True:
+        tttg.play(who = ("human", p))
