@@ -153,3 +153,59 @@ Lows: [420, 124, 373]
 Highs: [476, 172, 434]
 Ranges: [56, 48, 61]
 Averages: [445.72, 149.7, 404.58]
+
+With the policy player, these are the types of results I'm getting:
+p = PolicyPlayer(exploreRate = .1, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [5, 62, 878]
+Highs: [20, 107, 925]
+Ranges: [15, 45, 47]
+Averages: [13.1, 83.58, 903.32]
+
+p = PolicyPlayer(exploreRate = .15, learningRate = .5, rewards = [0, 1, 2])
+gamesToPlay = 100000
+playAgainst = 'random'
+Lows: [4, 49, 902]
+Highs: [18, 87, 942]
+Ranges: [14, 38, 40]
+Averages: [9.22, 66.2, 924.58]
+
+So this one was an odd combo, but it gave great results. Still PolicyPlayer
+#This is the actual code for it
+p = PolicyPlayer(exploreRate = .15, learningRate = .5, rewards = [0, .5, 3])
+gamesToPlay = 250000
+playAgainst = p
+for i in range(gamesToPlay):
+    useful.printPercent(i, gamesToPlay, 5, 1)
+    g = tttg.play(who = (playAgainst, p))
+    p.update()
+    p.curGameInfo[2]*=-1
+    p.update()
+
+print("Second training!")
+playAgainst = 'random'
+p.rewards = [-10, 1, 1]
+for i in range(gamesToPlay):
+    useful.printPercent(i, gamesToPlay, 5, 1)
+    g = tttg.play(who = (playAgainst, p))
+    p.update()
+Lows: [0, 132, 802]
+Highs: [5, 197, 867]
+Ranges: [5, 65, 65]
+Averages: [1.56, 170.5, 827.94]
+
+Doing the same thing the next time yielded:
+Lows: [3, 135, 792]
+Highs: [12, 200, 862]
+Ranges: [9, 65, 70]
+Averages: [7.74, 170.68, 821.58]
+
+Just punishing versus random didn't seem to do quite as well:
+p = PolicyPlayer(exploreRate = .15, learningRate = .5, rewards = [-10, 1, 3])
+gamesToPlay = 250000
+playAgainst = 'random'
+Lows: [8, 49, 888]
+Highs: [24, 95, 932]
+Ranges: [16, 46, 44]
+Averages: [17.06, 72.38, 910.56]

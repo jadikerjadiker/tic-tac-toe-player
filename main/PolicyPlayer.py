@@ -1,6 +1,9 @@
 import random
 import sys
 import UsefulThings as useful
+import Testers as test
+import LogicalPlayer as lp #TODO used for testing
+
 
 assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
 '''
@@ -57,9 +60,13 @@ class Policy:
         greedy = self.values[greedyIndex]
         greedyIndexes = [index for index in self.values if self.values[index]==greedy]
         if explore:
-            return random.choice([index for index in self.values if not (index in greedyIndexes)])
-        else:
-            return random.choice(greedyIndexes)
+            try:
+                return random.choice([index for index in self.values if not (index in greedyIndexes)])
+            #if all the values are greedy
+            #just skip over this and choose a random greedy one
+            except IndexError:
+                pass
+        return random.choice(greedyIndexes)
             
     def addSubpolicy(self, index):
         self.subpolicies[index] = Policy([openSpace for openSpace in self.openSpaces if openSpace!=index])
@@ -70,8 +77,8 @@ class Policy:
 
 
 class PolicyPlayer:
-    def __init__(self, exploreRate = 0, learningRate = 1):
-        self.rewards = [0, 1, 1] #reward for [loss, tie, win]
+    def __init__(self, exploreRate = 0, learningRate = 1, rewards = [0, 1, 1]):
+        self.rewards = rewards #reward for [loss, tie, win]
         self.policy = Policy()
         self.exploreRate = exploreRate
         self.learningRate = learningRate
@@ -85,7 +92,7 @@ class PolicyPlayer:
         policy = self.getPolicy([move[0] for move in game.movesMade])
         explore = random.random()<self.exploreRate
         moveIndex = len(game.movesMade)
-        if moveIndex<=1: #new game; rewrite self.curGameInfo
+        if game!=self.curGameInfo[0]: #new game; rewrite self.curGameInfo
             self.curGameInfo = [game, me, []]
         if explore: #add the explore move to the exploreMoves list
             self.curGameInfo[2].append(moveIndex)
@@ -135,7 +142,7 @@ class PolicyPlayer:
             trace = trace[:-1]
         updateVal = reward
         
-        while len(trace)>0:
+        while len(trace)>0 and (not ((len(trace)+1) in exploreMoves)):
             #the value dict of the policy we're updating
             policyValues = self.getPolicy(trace[:-1]).values
             #the particular move we're updating
@@ -153,11 +160,49 @@ if __name__ == "__main__":
     import TicTacToeGame as tttg
     import timeit
     #timeit.timeit(stmt = "for i in range(100): g = tttg.play(who = ('random', p));p.update()")
-    p = PolicyPlayer(exploreRate = 0, learningRate = .5)
-    gamesToPlay = 100000
+    pctIncrement = 5
+    p = PolicyPlayer(exploreRate = .15, learningRate = .5, rewards = [-10, 1, 3])
+    p2 = PolicyPlayer(exploreRate = .1, learningRate = .5, rewards = [0, 1, 3])
+    gamesToPlay = 250000
+    playAgainst = 'random'
     for i in range(gamesToPlay):
-        print("Playing game {}/{}".format(i+1, gamesToPlay))
-        g = tttg.play(who = ('random', p))
+        useful.printPercent(i, gamesToPlay, 5, 1)
+        g = tttg.play(who = (playAgainst, p))
         p.update()
+    print("Training second policy player")
+    for i in range(gamesToPlay):
+        useful.printPercent(i, gamesToPlay, 5, 1)
+        g = tttg.play(who = (playAgainst, p2))
+        p2.update()
+    print("Testing before they play each other")
+    test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    test.testAgainstRandom(p2, comment = 0, pctIncrement = pctIncrement)
+    playAgainst = p2
+    for i in range(gamesToPlay):
+        useful.printPercent(i, gamesToPlay, 5, 1)
+        g = tttg.play(who = (playAgainst, p))
+        p.update()
+        p2.update()
+        #p.curGameInfo[2]*=-1
+        #p.update()
+    print("Testing after they've played eachother")
+    '''
+    print("Second training!")
+    playAgainst = 'random'
+    p.rewards = [-10, 1, 1]
+    for i in range(gamesToPlay):
+        useful.printPercent(i, gamesToPlay, 5, 1)
+        g = tttg.play(who = (playAgainst, p))
+        p.update()
+    '''
+    print("Testing against random player...")
+    #test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    p.exploreRate = 0
+    p2.exploreRate = 0
+    test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    test.testAgainstRandom(p2, comment = 0, pctIncrement = pctIncrement)
     while True:
+        print("Playing p")
         tttg.play(who = ("human", p))
+        print("Playing p1")
+        tttg.play(who = ("human", p2))

@@ -26,7 +26,7 @@ def assertPython3():
 #...to print the percentage that the loop is done
 #This doens't work perfectly because of rounding error, but it's close enough.
 #(Sometimes it will skip or double print a number)
-def printPercent(indexNumber, outOf, incrementAmt = 1, roundAmt = 1):  
+def printPercent(indexNumber, outOf, incrementAmt = 1, roundAmt = 0):  
     printPc = 100.0*(indexNumber+1)/outOf
-    if printPc%logAmt<(100.0/outOf):
+    if printPc%incrementAmt<(100.0/outOf):
         print("{}%...".format(round(printPc, roundAmt)))
