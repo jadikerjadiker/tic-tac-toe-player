@@ -213,11 +213,11 @@ The move sequence (in human numbers) (3, 9, 1) should not differ from (1, 9, 3),
 ...yet to the policy player I currently have, they're completely different positions.
 So it may make it much more efficient.
 What I want to calculate is how many fewer positions the player will have to learn.
-Actually, there's no way to easily count how many the old one had.
-If we estimate that games end (on average) in 5 turns (even though this is the shortest game possible),
-...then it had 9^5 = 3^10 = 59049 positions
-The one I will make that just looks at the board will have (at most) 3^9 = 19683 positions.
-The difference is 39366 positions. And that's between the min of the old and the max of the new.
+The old one counted each move separately, and so had (at most) 9! = 362880 positions to learn
+The one I will make that just looks at the board will have (at most) 3^9 = 19683 positions to learn.
+(The "at most" is there because non-tie positions will end before the entire board is filled, eliminating many impossible positions)
+
+Thats about 18 times fewer positions to learn. 343,197 fewer positions, to be exact.
 I think adding in the board functionality would be a "game changer" :)
 '''
 

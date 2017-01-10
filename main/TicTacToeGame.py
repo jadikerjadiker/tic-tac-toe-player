@@ -25,7 +25,7 @@ class TicTacToeGame:
                 return 'X'
             else:
                 raise RuntimeError("Unrecognized symbol in game: '{}'".format(num))
-            
+        #main
         ans = ""
         for i, val in enumerate(self.board):
             ans+=convertToStr(val)+" "
@@ -33,9 +33,6 @@ class TicTacToeGame:
                 ans+='\n'
 
         return ans
-            
-            
-        #return ("Game:{}".format(self.board))
         
     def reset(self):
         self.__init__()
@@ -47,6 +44,17 @@ class TicTacToeGame:
             self.movesMade.append((where, playerNum))
         else:
             raise IllegalMove("Cannot make move at '{}' by player '{}' because it is already taken. {}".format(where, playerNum, self))
+    
+    #undoes the move with index 'moveIndex' and returns it
+    #if moveIndex is unspecified, it defaults to the last move made
+    def undoMove(self, moveIndex = None):
+        if moveIndex is None:
+            moveIndex = len(self.movesMade)-1
+        #remove (and also get) the move from the movesMade list
+        move = self.movesMade.pop(moveIndex)
+        self.board[move[0]]=0 #undo the move
+        return move
+        
     
     #determines who won the game, if anyone
     #returns None if no one has won the game and the game is not over yet
@@ -96,6 +104,8 @@ class TicTacToeGame:
             
         return ans
     
+    #returns a list of the open spaces on the board
+    #upgrade: might be faster as a property
     def getOpenSpaces(self):
         ans = []
         for i, val in enumerate(self.board):
