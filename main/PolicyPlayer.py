@@ -17,6 +17,7 @@ A policy consists of a dictionary of 9 values, each representing a probability
 ...of winning if you take that spot
 
 A complete policy would hold 3^9 = 19683 different board positions.
+But that would include impossible positions, so there are actually less board positions.
 
 This policy will create policies for new board positions as it goes.
 
@@ -227,25 +228,38 @@ if __name__ == "__main__":
         tttg.play(who = (p, "human"))
     '''
     
-    exploreRate, learningRate, rewards = (.2, .5, [0, 1, 3])
+    print("Working...")
+    exploreRate, learningRate, rewards = (0, .5, [-10, 1, 10])
     p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-    gamesToPlay = 1000
+    gamesToPlay = 80000
     playAgainst = 'random'
     for i in range(gamesToPlay):
-        useful.printPercent(i, gamesToPlay, 25, 1)
-        g = tttg.play(who = (playAgainst, p))
-        p.update()
-    pctIncrement = 25
+            useful.printPercent(i, gamesToPlay, 5, 1)
+            g = tttg.play(who = (playAgainst, p))
+            p.update()
     p.exploreRate = 0
+    pctIncrement = 5
     test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
-    
-    p = opp.OldPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-    for i in range(gamesToPlay):
-        useful.printPercent(i, gamesToPlay, 25, 1)
-        g = tttg.play(who = (playAgainst, p))
-        p.update()
-    p.exploreRate = 0
-    test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    while True:
+        tttg.play(who = ('human', p))
+    '''
+    for times in range(5):
+        for i in range(gamesToPlay):
+            #useful.printPercent(i, gamesToPlay, 25, 1)
+            g = tttg.play(who = (playAgainst, p))
+            p.update()
+        pctIncrement = 0
+        p.exploreRate = 0
+        test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+        
+        p = opp.OldPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+        for i in range(gamesToPlay):
+            #useful.printPercent(i, gamesToPlay, 25, 1)
+            g = tttg.play(who = (playAgainst, p))
+            p.update()
+        p.exploreRate = 0
+        test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    '''
     
     '''
     #timeit.timeit(stmt = "for i in range(100): g = tttg.play(who = ('random', p));p.update()")

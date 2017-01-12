@@ -31,7 +31,8 @@ def testAgainstRandom(player, rounds = 50, gamesPerTest = 1000, comment = 1, pct
     overall = [0]*3
     for i in range(rounds):
         test = oneRound(player, games = gamesPerTest, comment = comment-1)
-        useful.printPercent(i, rounds, incrementAmt = pctIncrement)
+        if pctIncrement>0:
+            useful.printPercent(i, rounds, incrementAmt = pctIncrement)
         for j, testVal in enumerate(test):
             lows[j] = min(lows[j], testVal)
             highs[j] = max(highs[j], testVal)

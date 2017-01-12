@@ -455,4 +455,10 @@ Highs: [177, 103, 796]
 Ranges: [45, 34, 61]
 Averages: [148.84, 84.98, 766.18]
 
-
+exploreRate, learningRate, rewards = (0, .5, [-10, 1, 10])
+p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+gamesToPlay = 80000
+Lows: [0, 165, 767]
+Highs: [0, 233, 835]
+Ranges: [0, 68, 68]
+Averages: [0.0, 203.2, 796.8]
