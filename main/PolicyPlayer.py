@@ -229,9 +229,9 @@ if __name__ == "__main__":
     '''
     
     print("Working...")
-    exploreRate, learningRate, rewards = (0, .5, [-10, 1, 10])
+    exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
     p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-    gamesToPlay = 80000
+    gamesToPlay = 150000
     playAgainst = 'random'
     for i in range(gamesToPlay):
             useful.printPercent(i, gamesToPlay, 5, 1)

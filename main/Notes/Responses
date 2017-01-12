@@ -405,7 +405,7 @@ Averages: [3.56, 147.48, 848.96]
 
 p = PolicyPlayer(exploreRate = .2, learningRate = .5, rewards = [0, 1, 3])
 gamesToPlay = 1000
-exploreRate = 0
+playAgainst = 'random'
 Lows: [87, 175, 657]
 Highs: [141, 220, 709]
 Ranges: [54, 45, 52]
@@ -455,10 +455,33 @@ Highs: [177, 103, 796]
 Ranges: [45, 34, 61]
 Averages: [148.84, 84.98, 766.18]
 
+
+#Generally seems to take 5 tries to get
 exploreRate, learningRate, rewards = (0, .5, [-10, 1, 10])
 p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+playAgainst = 'random'
 gamesToPlay = 80000
 Lows: [0, 165, 767]
 Highs: [0, 233, 835]
 Ranges: [0, 68, 68]
 Averages: [0.0, 203.2, 796.8]
+
+#Took about 5 tries to get
+exploreRate, learningRate, rewards = (0, .5, [-20, 1, 20])
+p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+playAgainst = 'random'
+gamesToPlay = 100000
+Lows: [0, 165, 757]
+Highs: [0, 243, 835]
+Ranges: [0, 78, 78]
+Averages: [0.0, 214.94, 785.06]
+
+#Took about 5 tries to get
+exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
+p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+playAgainst = 'random'
+gamesToPlay = 150000
+Lows: [0, 55, 910]
+Highs: [0, 90, 945]
+Ranges: [0, 35, 35]
+Averages: [0.0, 69.44, 930.56]
