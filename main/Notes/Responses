@@ -209,3 +209,250 @@ Lows: [8, 49, 888]
 Highs: [24, 95, 932]
 Ranges: [16, 46, 44]
 Averages: [17.06, 72.38, 910.56]
+
+
+
+The new policy player is giving results like this:
+(The previous results that were here were incorrect
+...because it reverted to an old version without the exploring implemented)
+
+
+p = PolicyPlayer(exploreRate = .1, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [24, 37, 886]
+Highs: [53, 67, 928]
+Ranges: [29, 30, 42]
+Averages: [36.14, 53.6, 910.26]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [3, 191, 730]
+Highs: [13, 262, 796]
+Ranges: [10, 71, 66]
+Averages: [6.8, 226.76, 766.44]
+
+So this looks like something is wrong with exploring. Exploring should cause it to be better, not worse.
+p = PolicyPlayer(exploreRate = .05, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [29, 46, 871]
+Highs: [59, 82, 912]
+Ranges: [30, 36, 41]
+Averages: [41.72, 65.2, 893.08]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [3, 174, 767]
+Highs: [17, 225, 813]
+Ranges: [14, 51, 46]
+Averages: [8.98, 201.9, 789.12]
+
+p = PolicyPlayer(exploreRate = .0001, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [7, 174, 748]
+Highs: [26, 237, 817]
+Ranges: [19, 63, 69]
+Averages: [16.6, 202.64, 780.76]
+
+p = PolicyPlayer(exploreRate = .0000, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [9, 155, 773]
+Highs: [24, 211, 827]
+Ranges: [15, 56, 54]
+Averages: [16.04, 183.96, 800.0]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [8, 166, 765]
+Highs: [24, 219, 818]
+Ranges: [16, 53, 53]
+Averages: [14.84, 192.44, 792.72]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [14, 160, 757]
+Highs: [34, 215, 819]
+Ranges: [20, 55, 62]
+Averages: [24.58, 188.9, 786.52]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [1, 174, 769]
+Highs: [14, 220, 821]
+Ranges: [13, 46, 52]
+Averages: [5.76, 200.72, 793.52]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [0, 160, 779]
+Highs: [7, 217, 837]
+Ranges: [7, 57, 58]
+Averages: [2.76, 185.0, 812.24]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [0, 119, 822]
+Highs: [7, 177, 878]
+Ranges: [7, 58, 56]
+Averages: [3.56, 147.48, 848.96]
+
+
+
+The new policy player is giving results like this:
+(The previous results that were here were incorrect
+...because it reverted to an old version without the exploring implemented)
+
+
+p = PolicyPlayer(exploreRate = .1, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [24, 37, 886]
+Highs: [53, 67, 928]
+Ranges: [29, 30, 42]
+Averages: [36.14, 53.6, 910.26]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [3, 191, 730]
+Highs: [13, 262, 796]
+Ranges: [10, 71, 66]
+Averages: [6.8, 226.76, 766.44]
+
+So this looks like something is wrong with exploring. Exploring should cause it to be better, not worse.
+p = PolicyPlayer(exploreRate = .05, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [29, 46, 871]
+Highs: [59, 82, 912]
+Ranges: [30, 36, 41]
+Averages: [41.72, 65.2, 893.08]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [3, 174, 767]
+Highs: [17, 225, 813]
+Ranges: [14, 51, 46]
+Averages: [8.98, 201.9, 789.12]
+
+p = PolicyPlayer(exploreRate = .0001, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [7, 174, 748]
+Highs: [26, 237, 817]
+Ranges: [19, 63, 69]
+Averages: [16.6, 202.64, 780.76]
+
+p = PolicyPlayer(exploreRate = .0000, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [9, 155, 773]
+Highs: [24, 211, 827]
+Ranges: [15, 56, 54]
+Averages: [16.04, 183.96, 800.0]
+
+p = PolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [8, 166, 765]
+Highs: [24, 219, 818]
+Ranges: [16, 53, 53]
+Averages: [14.84, 192.44, 792.72]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [14, 160, 757]
+Highs: [34, 215, 819]
+Ranges: [20, 55, 62]
+Averages: [24.58, 188.9, 786.52]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [1, 174, 769]
+Highs: [14, 220, 821]
+Ranges: [13, 46, 52]
+Averages: [5.76, 200.72, 793.52]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [0, 160, 779]
+Highs: [7, 217, 837]
+Ranges: [7, 57, 58]
+Averages: [2.76, 185.0, 812.24]
+
+p = PolicyPlayer(exploreRate = .001, learningRate = .5, rewards = [-1, 1, 3])
+gamesToPlay = 80000
+playAgainst = 'random'
+Lows: [0, 119, 822]
+Highs: [7, 177, 878]
+Ranges: [7, 58, 56]
+Averages: [3.56, 147.48, 848.96]
+
+
+p = PolicyPlayer(exploreRate = .2, learningRate = .5, rewards = [0, 1, 3])
+gamesToPlay = 1000
+exploreRate = 0
+Lows: [87, 175, 657]
+Highs: [141, 220, 709]
+Ranges: [54, 45, 52]
+Averages: [119.52, 196.2, 684.28]
+
+Lows: [69, 150, 705]
+Highs: [117, 208, 761]
+Ranges: [48, 58, 56]
+Averages: [89.9, 177.72, 732.38]
+
+Lows: [75, 117, 716]
+Highs: [121, 176, 781]
+Ranges: [46, 59, 65]
+Averages: [104.7, 144.34, 750.96]
+
+exploreRate = .1
+
+Lows: [69, 88, 778]
+Highs: [116, 127, 832]
+Ranges: [47, 39, 54]
+Averages: [91.8, 104.42, 803.78]
+
+Lows: [57, 77, 803]
+Highs: [96, 115, 854]
+Ranges: [39, 38, 51]
+Averages: [77.34, 91.52, 831.14]
+
+Lows: [89, 88, 739]
+Highs: [135, 131, 821]
+Ranges: [46, 43, 82]
+Averages: [107.66, 113.94, 778.4]
+
+exploreRate = .2
+
+Lows: [82, 48, 805]
+Highs: [122, 87, 856]
+Ranges: [40, 39, 51]
+Averages: [101.58, 68.48, 829.94]
+
+Lows: [105, 77, 758]
+Highs: [147, 118, 806]
+Ranges: [42, 41, 48]
+Averages: [127.46, 95.48, 777.06]
+
+Lows: [132, 69, 735]
+Highs: [177, 103, 796]
+Ranges: [45, 34, 61]
+Averages: [148.84, 84.98, 766.18]
+
+

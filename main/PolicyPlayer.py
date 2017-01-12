@@ -2,8 +2,9 @@ import random
 import sys
 import UsefulThings as useful
 import Testers as test
-import LogicalPlayer as lp #TODO used for testing
 import TicTacToeGame as tttg
+import LogicalPlayer as lp #TODO used for testing
+import OldPolicyPlayer as opp #TODO used for testing
 
 
 assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
@@ -150,6 +151,8 @@ class PolicyPlayer:
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
+        #dp
+        #print("ExploreMoves: {}".format(exploreMoves))
         winner = game.whoWon()
         wentLast = False #whether or not I made the last move in the game
         rewardIndex = 0 #index to get value from self.rewards, default to loss
@@ -171,15 +174,20 @@ class PolicyPlayer:
             game = game.getConvert()
         else:
             #I will be editing the board, so I need to copy the game
-            game.copy()
+            game = game.copy()
         
         #there's a move at the end the policy player doesn't care about    
         if not wentLast:
             game.undoMove()
-        
+        #dp
+        #print("wentLast: {}".format(wentLast))
         updateVal = reward
-        #while I haven't gone through all the moves I need to
-        while len(game.movesMade)>0:
+        movesMadeLen = len(game.movesMade) #cache
+        #while I haven't gone through all the moves I need to and
+        #I'm not trying to update for any move that occured before an explore move
+        while movesMadeLen>0 and (not movesMadeLen+1 in exploreMoves):
+            #dp
+            #print("movesMadeLen at start: {}".format(movesMadeLen))
             #the particular move we're updating
             move = game.undoMove()[0]
             #the value dict of the policy we're updating
@@ -189,31 +197,55 @@ class PolicyPlayer:
             #do the update
             updateVal = pastVal + self.learningRate*(updateVal - pastVal)
             policyValues[move] = updateVal
+            #dp
+            #print(policyValues)
             #go to the next move
             try:
                 game.undoMove()
             except IndexError:
-                pass
+                #len(game.movesMade)==0,
+                #...so instead of breaking at the start of the loop,
+                #just have it break here
+                break 
+            movesMadeLen = len(game.movesMade) #cache
+            #dp
+            #print(movesMadeLen)
             
-        
+
 if __name__ == "__main__":
     import TicTacToeGame as tttg
     import timeit
-    p = PolicyPlayer(exploreRate = .15, learningRate = .5, rewards = [-1, .5, 3])
-    gamesToPlay = 250000
+    '''
+    p = PolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [0, 1, 3])
+    for i in range(3):
+        g = tttg.play(who = (p, 'random'))
+        print(g)
+        print(g.movesMade)
+        p.update()
+    p.exploreRate = 0
+    while True:
+        tttg.play(who = (p, "human"))
+    '''
+    
+    exploreRate, learningRate, rewards = (.2, .5, [0, 1, 3])
+    p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+    gamesToPlay = 1000
     playAgainst = 'random'
     for i in range(gamesToPlay):
-        useful.printPercent(i, gamesToPlay, 5, 1)
+        useful.printPercent(i, gamesToPlay, 25, 1)
         g = tttg.play(who = (playAgainst, p))
         p.update()
-    pctIncrement = 5
+    pctIncrement = 25
     p.exploreRate = 0
     test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
-    while True:
-        print("Playing p")
-        tttg.play(who = ("human", p))
     
-    
+    p = opp.OldPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+    for i in range(gamesToPlay):
+        useful.printPercent(i, gamesToPlay, 25, 1)
+        g = tttg.play(who = (playAgainst, p))
+        p.update()
+    p.exploreRate = 0
+    test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
     
     '''
     #timeit.timeit(stmt = "for i in range(100): g = tttg.play(who = ('random', p));p.update()")

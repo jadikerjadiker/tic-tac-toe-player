@@ -246,3 +246,31 @@ Totally makes sense.
 No wait, but since it's a list, I can't use it as an index easily.
 String is the best choice.
 '''
+
+'''
+So I made it, but it seems like exploring is causing it to lose more.
+
+Why? Is my implementation wrong?
+
+It definitely seems to be learning faster than the other version.
+But why isn't it acting similarly with respect to exploring?
+
+I'm curious as to if this one is so different just because of it counting on the board,
+...if maybe thw exploring really only helps for super low amounts of games
+(because what's low here might have been considered high for the old one, and
+...what's considered high here may have been untestably high for the old one)
+'''
+
+'''
+So I made it, but it seems like exploring is causing it to lose more.
+
+Why? Is my implementation wrong?
+
+It definitely seems to be learning faster than the other version.
+But why isn't it acting similarly with respect to exploring?
+
+I'm curious as to if this one is so different just because of it counting on the board,
+...if maybe the exploring really only helps for super low amounts of games
+(because what's low here might have been considered high for the old one, and
+...what's considered high here may have been untestably high for the old one)
+'''
