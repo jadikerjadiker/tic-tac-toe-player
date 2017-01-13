@@ -43,3 +43,4 @@ def testAgainstRandom(player, rounds = 50, gamesPerTest = 1000, comment = 1, pct
     print("Ranges: {}".format(ranges))
     avgs = [overall[i]*1.0/rounds for i in range(3)] #the *1.0 makes it so it doesn't use integer division 
     print("Averages: {}".format(avgs))
+    return (lows, highs, ranges, avgs)

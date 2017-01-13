@@ -485,3 +485,25 @@ Lows: [0, 55, 910]
 Highs: [0, 90, 945]
 Ranges: [0, 35, 35]
 Averages: [0.0, 69.44, 930.56]
+
+#for example:
+exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
+p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+playAgainst = 'random'
+gamesToPlay = 150000
+Lows: [0, 43, 924]
+Highs: [2, 76, 957]
+Ranges: [2, 33, 33]
+Averages: [0.42, 56.34, 943.24]
+
+exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
+p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+playAgainst = 'random'
+gamesToPlay = 150000
+#took 4 tries
+Lows: [0, 42, 927]
+Highs: [0, 73, 958]
+Ranges: [0, 31, 31]
+Averages: [0.0, 54.34, 945.66]
+
+#Took 28 tries, then 21 tries, then at least 13 tries when I made a program to run it until it got a winner.

@@ -229,19 +229,42 @@ if __name__ == "__main__":
     '''
     
     print("Working...")
-    exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
-    p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-    gamesToPlay = 150000
-    playAgainst = 'random'
-    for i in range(gamesToPlay):
-            useful.printPercent(i, gamesToPlay, 5, 1)
-            g = tttg.play(who = (playAgainst, p))
-            p.update()
-    p.exploreRate = 0
-    pctIncrement = 5
-    test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+    winnerList = []
     while True:
-        tttg.play(who = ('human', p))
+        exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
+        gamesToPlay = 150000
+        playerNumber = 1
+        
+        p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+        playAgainst = 'random'
+        for i in range(gamesToPlay):
+                useful.printPercent(i, gamesToPlay, 5, 1)
+                g = tttg.play(who = (playAgainst, p))
+                p.update()
+        p.exploreRate = 0
+        pctIncrement = 10
+        results = test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+        print("Player {} done.".format(playerNumber))
+        print("Winners without most recent player included: {}".format(winnerList))
+        
+        while results[1][0]>0:
+            playerNumber+=1
+            p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+            playAgainst = 'random'
+            for i in range(gamesToPlay):
+                    useful.printPercent(i, gamesToPlay, 5, 1)
+                    g = tttg.play(who = (playAgainst, p))
+                    p.update()
+            p.exploreRate = 0
+            pctIncrement = 10
+            results = test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+            print("Player {} done.".format(playerNumber))
+            print("Winners without most recent player included: {}".format(winnerList))
+    
+        print("Player number {} is a winner!".format(playerNumber))
+        winnerList.append(playerNumber)
+    #while True:
+    #    tttg.play(who = ('human', p))
     '''
     for times in range(5):
         for i in range(gamesToPlay):
