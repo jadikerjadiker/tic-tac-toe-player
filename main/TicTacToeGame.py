@@ -7,6 +7,17 @@ useful.assertPython3()
 A class that allows for the simulation and playing of a tic-tac-toe game
 '''
 class TicTacToeGame(TwoPlayerGame):
+    @staticmethod
+    #just a slightly faster method than TwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
+    #often times random games are used for training so we want this to be fast.
+    def makeRandomGame():
+        game = TicTacToeGame()
+        player = 1
+        while game.whoWon()==None:
+            game.makeRandomMove(player)
+            player*=-1
+        return game
+    
     def __init__(self):
         TwoPlayerGame.__init__(self)
         #0 is an empty slot on the board
@@ -142,16 +153,7 @@ class TicTacToeGame(TwoPlayerGame):
             except:
                 print("That didn't seem to work.")
                 
-    @staticmethod
-    #just a slightly faster method than TwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
-    #often times random games are used for training so we want this to be fast.
-    def makeRandomGame():
-        game = TicTacToeGame()
-        player = 1
-        while game.whoWon()==None:
-            game.makeRandomMove(player)
-            player*=-1
-        return game
+    
                 
 if __name__=="__main__":
     pass

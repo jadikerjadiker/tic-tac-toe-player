@@ -1,4 +1,4 @@
-import TicTacToeGame as tttg
+from TicTacToeGame import TicTacToeGame
 import random
 import UsefulThings as useful
 
@@ -8,13 +8,13 @@ def testAgainstRandom(player, rounds = 50, gamesPerTest = 1000, comment = 1, pct
         for gameNum in range(games):
             if comment>1:
                 print("Testing game {}/{}".format((gameNum+1), games))
-            game = tttg.TicTacToeGame()
+            game = TicTacToeGame()
             playerNum = random.choice([1, -1])
             while game.whoWon()==None:
                 if playerNum==1:
                     player.makeMove(game, 1)
                 else: #player==-1
-                    tttg.makeRandomMove(game, -1)
+                    TicTacToeGame.makeRandomMove(game, -1)
                 playerNum*=-1
                 
             results[game.whoWon()+1]+=1

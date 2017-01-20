@@ -219,16 +219,18 @@ if __name__ == "__main__":
     
     print("Working...")
     winnerList = []
+    from TwoPlayerGame import TwoPlayerGamePlayer
+    gamePlayer = TwoPlayerGamePlayer(tttg.TicTacToeGame)
     while True:
         exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
-        gamesToPlay = 0
+        gamesToPlay = 100000
         playerNumber = 1
         
         p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
         playAgainst = 'random'
         for i in range(gamesToPlay):
                 useful.printPercent(i, gamesToPlay, 5, 1)
-                g = tttg.play(who = (playAgainst, p))
+                g = gamePlayer.play(who = (playAgainst, p))
                 p.update()
         p.exploreRate = 0
         pctIncrement = 10
@@ -236,13 +238,16 @@ if __name__ == "__main__":
         print("Player {} done.".format(playerNumber))
         print("Winners without most recent player included: {}".format(winnerList))
         
+        while True:
+            gamePlayer.play(who = ('human', p))
+        
         while results[1][0]>0:
             playerNumber+=1
             p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
             playAgainst = 'random'
             for i in range(gamesToPlay):
                     useful.printPercent(i, gamesToPlay, 5, 1)
-                    g = tttg.play(who = (playAgainst, p))
+                    g = gamePlayer.play(who = (playAgainst, p))
                     p.update()
             p.exploreRate = 0
             pctIncrement = 10
@@ -252,6 +257,9 @@ if __name__ == "__main__":
     
         print("Player number {} is a winner!".format(playerNumber))
         winnerList.append(playerNumber)
+        while True:
+            gamePlayer.play('human', p)
+            
     #while True:
     #    tttg.play(who = ('human', p))
     '''

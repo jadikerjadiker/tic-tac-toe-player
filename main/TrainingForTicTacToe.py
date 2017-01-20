@@ -501,9 +501,9 @@ if __name__ == '__main__':
     for i in range(100):
         gameList = []
         while len(gameList)<100:
-            game = tttg.makeRandomGame()
+            game = tttg.TicTacToeGame.makeRandomGame()
             #while len(game.movesMade)!=5:
-                #game = tttg.makeRandomGame()
+                #game = tttg.TicTacToeGame.makeRandomGame()
             gameList.append(game)
             #print(game)
         net = LearningNet3([9, 30, 9], learningRate = .001, trainingMode = ('avg', .054), examplesPerBatch = None)
@@ -529,9 +529,9 @@ if __name__ == '__main__':
     net.go(gamesPerRound = 500, rounds = 1, comment = 2)
     '''
     '''
-    game = tttg.makeRandomGame()
+    game = tttg.TicTacToeGame.makeRandomGame()
     while (not game.whoWon()) or (len(game.movesMade)>6):
-        game = tttg.makeRandomGame()
+        game = tttg.TicTacToeGame.makeRandomGame()
     net = LearningNet4([9, 9, 9, 9])
     print(game)
     print(net.makeTrainingSets(game))
@@ -545,7 +545,7 @@ if __name__ == '__main__':
     #game = tttg.playHumanVRandom()
     trainingSet = []
     for i in range(100):
-        trainingSet.append(tttg.makeRandomGame())
+        trainingSet.append(tttg.TicTacToeGame.makeRandomGame())
     trainingSet = net.makeTrainingSet(trainingSet)
     print(trainingSet)
     print("Training started")
