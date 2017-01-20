@@ -1,22 +1,24 @@
 import random
 import UsefulThings as useful
+from TwoPlayerGame import IllegalMove, TwoPlayerGame
 useful.assertPython3()
 
-class IllegalMove(RuntimeError):
-    pass
-
-class TicTacToeGame:
+'''
+A class that allows for the simulation and playing of a tic-tac-toe game
+'''
+class TicTacToeGame(TwoPlayerGame):
     def __init__(self):
+        TwoPlayerGame.__init__(self)
         #0 is an empty slot on the board
         #It is usually the case (but it is not assumed) that 1 is a player, -1 is the other player.
         self.board = [0]*9
         
         #will be in the form [(where, who), (where, who), etc.]
         #where "where" is position of placement and "who" is number used to represent player
-        self.movesMade = []
+        self.pastMoves = []
         
     def __str__(self):
-        def convertToStr(num):
+        def toStr(num):
             if num==0:
                 return '-'
             elif num==1:
@@ -28,12 +30,18 @@ class TicTacToeGame:
         #main
         ans = ""
         for i, val in enumerate(self.board):
-            ans+=convertToStr(val)+" "
+            ans+=toStr(val)+" "
             if i%3==2: #if we just added the last symbol for the row
                 ans+='\n'
 
         return ans
-        
+    
+    def convertToStr(self):
+        ans = ""
+        for index, value in enumerate(self.board):
+            ans+=str(index)+str(value)
+        return ans
+       
     def reset(self):
         self.__init__()
         
@@ -41,7 +49,7 @@ class TicTacToeGame:
         assert playerNum==1 or playerNum==-1, "Players can only play 1 or -1, not '{}'".format(playerNum)
         if self.board[where]==0:
             self.board[where] = playerNum
-            self.movesMade.append((where, playerNum))
+            self.pastMoves.append((where, playerNum))
         else:
             raise IllegalMove("Cannot make move at '{}' by player '{}' because it is already taken. {}".format(where, playerNum, self))
     
@@ -49,9 +57,9 @@ class TicTacToeGame:
     #if moveIndex is unspecified, it defaults to the last move made
     def undoMove(self, moveIndex = None):
         if moveIndex is None:
-            moveIndex = len(self.movesMade)-1
-        #remove (and also get) the move from the movesMade list
-        move = self.movesMade.pop(moveIndex)
+            moveIndex = len(self.pastMoves)-1
+        #remove (and also get) the move from the pastMoves list
+        move = self.pastMoves.pop(moveIndex)
         self.board[move[0]]=0 #undo the move
         return move
         
@@ -60,7 +68,7 @@ class TicTacToeGame:
     #returns None if no one has won the game and the game is not over yet
     #returns 0 if the game is a tie
     #returns the number of the person who won if there is a winner
-    #todo I think this function can be simplified. A lot of what's gonig on in the diagonal checking is the exact same as the straight line checking.
+    #upgrade: I think this function can be simplified. A lot of what's going on in the diagonal checking is the exact same as the straight line checking.
     def whoWon(self):
         if 0 in self.board: #game is not done
             ans = None
@@ -106,97 +114,45 @@ class TicTacToeGame:
     
     #returns a list of the open spaces on the board
     #upgrade: might be faster as a property
-    def getOpenSpaces(self):
+    def getPossibleMoves(self):
         ans = []
         for i, val in enumerate(self.board):
             if val==0:
                 ans.append(i)
-        return ans
-    
-    #returns a new game object that's a copy of the old one but with the player numbers swapped
-    def getConvert(self):
-        ans = TicTacToeGame() #make a new game to return, don't edit the old one
-        #redo the game with the conversion
-        for move in self.movesMade:
-            #convert the value, using the original if no conversion is listed
-            ans.makeMove(move[0], -move[1])
         return ans
         
     #returns a copy of the game
     def copy(self):
         ans = TicTacToeGame()
         #just redo the game from the start on a new game
-        for move in self.movesMade:
+        for move in self.pastMoves:
             ans.makeMove(*move)
         return ans
-
-#just a slightly faster method than play(who = ('random', 'random'))
-#often times random games are used for training so we want this to be fast.
-def makeRandomGame():
-    game = TicTacToeGame()
-    player = 1
-    while game.whoWon()==None:
-        makeRandomMove(game, player)
-        player*=-1
     
-    return game
-
-def makeRandomMove(game, player):
-    game.makeMove(random.choice(game.getOpenSpaces()), player)
-
-def makeHumanMove(game, player):
-    while True:
-        try:
-            if player==1:
-                print("You are O")
-            else:
-                print("You are X")
-            game.makeMove(int(input("Where would you like to go? "))-1, player)
-            break
-        except:
-            print("That didn't seem to work.")
-
-#who is a tuple (player1, player-1)
-#each of the players can either be:
-#'random': random player
-#'human': ask the human to make a move
-#net: pass in a neural net with the method "makeMove(game, player)" to make the move
-def play(who = ("random", "random"), comment = 0):
-    whoToFunction = {"random":makeRandomMove, "human":makeHumanMove}
-    #the functions that should be called when that player wants to move
-    #the first value stays None (so that we can have index 1 and -1 be different)
-    #the value at index 1 is for player 1
-    #the value at index 2 (or -1) is for player -1
-    functions = [None, None, None]
-    for playerNum, player in enumerate(who):
-        if player=='human':
-            comment = 1
-        if isinstance(player, str):
-            functions[playerNum+1] = whoToFunction[player]
-        else: #net or any other class with a "makeMove" function
-            functions[playerNum+1] = player.makeMove
-    curPlayer = random.choice([-1, 1])
-    game = TicTacToeGame()
-    if comment:
-        print("New game!")
-    while game.whoWon()==None:
-        if comment:
-            print(game)
-        functions[curPlayer](game, curPlayer) #run the function to have the player make their move
-        curPlayer*=-1 #other player's turn
-    if comment:
-        print(game)
-        winner = game.whoWon()
-        if winner==1:
-            print("O wins!")
-        elif winner==-1:
-            print("X wins!")
-        else:
-            print("Tie game!")
-    return game
+    @staticmethod    
+    def makeHumanMove(game, player):
+        while True:
+            try:
+                if player==1:
+                    print("You are O")
+                else:
+                    print("You are X")
+                game.makeMove(int(input("Where would you like to go? "))-1, player)
+                break
+            except:
+                print("That didn't seem to work.")
                 
+    @staticmethod
+    #just a slightly faster method than TwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
+    #often times random games are used for training so we want this to be fast.
+    def makeRandomGame():
+        game = TicTacToeGame()
+        player = 1
+        while game.whoWon()==None:
+            game.makeRandomMove(player)
+            player*=-1
+        return game
                 
 if __name__=="__main__":
-    while True:
-        print(play(('random', 'random')))
+    pass
     

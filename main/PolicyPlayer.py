@@ -29,7 +29,7 @@ The learning rate determines how fast it learns.
 Remember, the policy player only changes the probabilities up through its last
 ...explore move (or all the way through if there was no explore move)
 '''
-
+#TODO check to make sure that the player who went last isn't necessarily who won
 class UncreatablePolicy(RuntimeError):
     def __init__(self):
         RuntimeError.__init__("Was not given a board with which to create a new policy.")
@@ -38,13 +38,14 @@ class UncreatablePolicy(RuntimeError):
 #It can suggest values to choose and be greedy (choose its 'best' option) or
 #...have a probability of exploring (choosing a 'non-best' option)
 class Policy:
-    #openSpaces is a list of options that are actually choosable
+    #possActions is a list of actions that are actually choosable when suggesting
     #defaultValue is the default value for choosing each action
-    def __init__(self, openSpaces = range(9), defaultValue = .5):
+    def __init__(self, possActions, defaultValue = 0):
         self.values = {} #the dict to store the value of choosing each action
-        self.openSpaces = openSpaces
-        for openSpace in self.openSpaces:
-            self.values[openSpace] = defaultValue
+        self.possActions = possActions #a list of all the moves this policy has to keep track of
+        self.defaultValue = defaultValue
+        for action in possActions:
+            self.values[action] = self.defaultValue
     
     def __str__(self):
         return str(self.values)
@@ -52,17 +53,22 @@ class Policy:
     #If explore is false, return the greedy (highest) value in this policy
     #If explore is true, choose a random value that's not the greedy one
     def suggest(self, explore = False):
-        greedyIndex = max(self.values, key=self.values.get)
-        greedy = self.values[greedyIndex]
-        greedyIndexes = [index for index in self.values if self.values[index]==greedy]
+        #get the highest value in the policy
+        greedy = self.values[max(self.values, key=self.values.get)]
+        #create a list of the actions that have this highest value
+        #these actions are called "greedy actions"
+        greedyActions = [action for action in self.values if self.values[action]==greedy]
+        #If it should explore and not be greedy
         if explore:
             try:
-                return random.choice([index for index in self.values if not (index in greedyIndexes)])
-            #if all the values are greedy
-            #just skip over this and choose a random greedy one
-            except IndexError:
+                #pick a random action that is not a greedy action
+                return random.choice([action for action in self.values if not (action in greedyActions)])
+            except IndexError: #If all the values are greedy
+                #just move on and choose a random (greedy) action
                 pass
-        return random.choice(greedyIndexes)
+        #choose a random action
+        return random.choice(greedyActions)
+        
     
     #the formula used is
     #old = old+learningRate*(target-old)
@@ -73,16 +79,10 @@ class Policy:
         self.values[value]+=learningRate*(target-self.values[value])
 
 
-class PolicyPlayer:
-    @staticmethod
-    def convertBoardToString(board):
-        ans = ""
-        for index, value in enumerate(board):
-            ans+=str(index)+str(value)
-        return ans
-            
-    
-    def __init__(self, exploreRate = 0, learningRate = 1, rewards = [0, 1, 1], defaultPolicyValue = .5):
+class TwoPlayerPolicyPlayer:
+    def __init__(self, exploreRate = 0, learningRate = 1, rewards = None, defaultPolicyValue = .5):
+        if rewards is None:
+            rewards = [0, 1, 1] #default
         self.rewards = rewards #reward for [loss, tie, win]
         self.policies = {}
         self.exploreRate = exploreRate
@@ -91,19 +91,19 @@ class PolicyPlayer:
         #[game, playerNumber, exploreMoves]
         #exploreMoves is a list of the moves that were explore moves in the most recent game it played.
         #...0 corresponds to the first move.
-        self.curGameInfo = [None, None, []] 
+        self.curGameInfo = [None, None, []]
 
     #takes the game (game), and the player number of the policy player (me)
     #makes a move in the game based on its policies and exploreRate 
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
         if me==-1:
-            policy = self.getPolicy(game.getConvert())
+            policy = self.getPolicy(game.getReversedPlayers())
         else: #me==1
             policy = self.getPolicy(game)
             
         explore = random.random()<self.exploreRate
-        moveIndex = len(game.movesMade)
+        moveIndex = len(game.pastMoves)
         if game!=self.curGameInfo[0]: #new game; rewrite self.curGameInfo
             self.curGameInfo = [game, me, []]
         if explore: #add the explore move to the exploreMoves list
@@ -120,23 +120,22 @@ class PolicyPlayer:
                 raise RuntimeError("Could not find a policy with string code '{}'".format(game))
         else: #given an actual game
             try:
-                stringIndex = self.convertBoardToString(game.board) #cache in case of KeyError
+                stringIndex = game.convertToStr() #cache in case of KeyError
                 return self.policies[stringIndex] #get the policy for that move
             except KeyError: #this policy doesn't exist yet
                 return self.addPolicy(game, stringIndex) #make and get the new policy
                 
-    #takes a game (with a game board)
-    #creates a new empty policy based on the board
+    #takes a game, and creates a new empty policy for it
     #The policy does not include impossible moves
-    #returns the new policy that was added to the game
+    #Returns the new policy that was added to the game
     #If there is a policy already there, it will overwrite it.
-    #If provided, stringIndex should be self.convertBoardToString(game.board)
+    #If provided, stringIndex should be game.convertToStr()
     def addPolicy(self, game, stringIndex = None):
         #If it hasn't been given, compute stringIndex
         if stringIndex is None:
-            stringIndex = self.convertBoardToString(game.board)
+            stringIndex = game.convertToStr()
         #add the policy to the policies property with the string version of the board as the index to reach it
-        policy = Policy(openSpaces = game.getOpenSpaces(), defaultValue = self.defaultPolicyValue)
+        policy = Policy(possActions = game.getPossibleMoves(), defaultValue = self.defaultPolicyValue)
         self.policies[stringIndex] = policy
         return policy
         
@@ -152,8 +151,6 @@ class PolicyPlayer:
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
-        #dp
-        #print("ExploreMoves: {}".format(exploreMoves))
         winner = game.whoWon()
         wentLast = False #whether or not I made the last move in the game
         rewardIndex = 0 #index to get value from self.rewards, default to loss
@@ -166,13 +163,13 @@ class PolicyPlayer:
         reward = self.rewards[rewardIndex]
         if wentLast==None:
             #check the last move and see if I was the one who made it
-            wentLast = game.movesMade[-1][1]==me
+            wentLast = game.pastMoves[-1][1]==me
         #from this point on, I don't use the game to tell me what player is making the move
         #...I base it on @param wentLast.
         #So, I can convert the game so the policy player is player 1
         #...and not run into any issues later on
         if me==-1:
-            game = game.getConvert()
+            game = game.getReversedPlayers()
         else:
             #I will be editing the board, so I need to copy the game
             game = game.copy()
@@ -180,15 +177,11 @@ class PolicyPlayer:
         #there's a move at the end the policy player doesn't care about    
         if not wentLast:
             game.undoMove()
-        #dp
-        #print("wentLast: {}".format(wentLast))
         updateVal = reward
-        movesMadeLen = len(game.movesMade) #cache
+        pastMovesLen = len(game.pastMoves) #cache
         #while I haven't gone through all the moves I need to and
         #I'm not trying to update for any move that occured before an explore move
-        while movesMadeLen>0 and (not movesMadeLen+1 in exploreMoves):
-            #dp
-            #print("movesMadeLen at start: {}".format(movesMadeLen))
+        while pastMovesLen>0 and (not pastMovesLen+1 in exploreMoves):
             #the particular move we're updating
             move = game.undoMove()[0]
             #the value dict of the policy we're updating
@@ -198,19 +191,15 @@ class PolicyPlayer:
             #do the update
             updateVal = pastVal + self.learningRate*(updateVal - pastVal)
             policyValues[move] = updateVal
-            #dp
-            #print(policyValues)
             #go to the next move
             try:
                 game.undoMove()
             except IndexError:
-                #len(game.movesMade)==0,
+                #len(game.pastMoves)==0,
                 #...so instead of breaking at the start of the loop,
                 #just have it break here
                 break 
-            movesMadeLen = len(game.movesMade) #cache
-            #dp
-            #print(movesMadeLen)
+            pastMovesLen = len(game.pastMoves) #cache
             
 
 if __name__ == "__main__":
@@ -221,7 +210,7 @@ if __name__ == "__main__":
     for i in range(3):
         g = tttg.play(who = (p, 'random'))
         print(g)
-        print(g.movesMade)
+        print(g.pastMoves)
         p.update()
     p.exploreRate = 0
     while True:
@@ -232,10 +221,10 @@ if __name__ == "__main__":
     winnerList = []
     while True:
         exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
-        gamesToPlay = 150000
+        gamesToPlay = 0
         playerNumber = 1
         
-        p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+        p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
         playAgainst = 'random'
         for i in range(gamesToPlay):
                 useful.printPercent(i, gamesToPlay, 5, 1)
@@ -249,7 +238,7 @@ if __name__ == "__main__":
         
         while results[1][0]>0:
             playerNumber+=1
-            p = PolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+            p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
             playAgainst = 'random'
             for i in range(gamesToPlay):
                     useful.printPercent(i, gamesToPlay, 5, 1)
