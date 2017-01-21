@@ -27,7 +27,7 @@ class TwoPlayerGame:
     
     #Returns a list of possible moves that one could make, given the current game position
     #Each move needs to be a string or a number 
-    def getPossibleMoves(self):
+    def getPossibleMoves(self, playerNum):
         raise NotImplementedError
     
     #Makes a move in the game and adds the move and playerNum as a tuple to the list self.pastMoves
@@ -66,11 +66,11 @@ class TwoPlayerGame:
     
     @staticmethod
     def makeRandomMove(game, player):
-        game.makeMove(random.choice(game.getPossibleMoves()), player)
+        game.makeMove(random.choice(game.getPossibleMoves(player = player)), player)
 
     @staticmethod
     def makeHumanMove(game, player):
-        print("Your options are: {}".format(game.getPossibleMoves()))
+        print("Your options are: {}".format(game.getPossibleMoves(player = player)))
         while True:
             try:
                 playerMove = input("Where would you like to go? ")

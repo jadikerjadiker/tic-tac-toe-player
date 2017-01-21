@@ -249,3 +249,9 @@ Maybe one of the nets is really big and the other is really small, so one goes f
 
 Idk yet.
 '''
+
+'''
+As difficult as I think it will be, I think I should switch everything to be player 0 and player 1, not 1 and -1.
+I don't know why I made such a bad decision in the first place.
+At the same time though, I think it will be faster for me to just keep it than it will for me to go back and fix it.
+'''

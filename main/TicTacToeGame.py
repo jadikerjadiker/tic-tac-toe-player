@@ -1,6 +1,7 @@
 import random
 import UsefulThings as useful
 from TwoPlayerGame import IllegalMove, TwoPlayerGame
+from overrides import overrides
 useful.assertPython3()
 
 '''
@@ -17,6 +18,21 @@ class TicTacToeGame(TwoPlayerGame):
             game.makeRandomMove(player)
             player*=-1
         return game
+    
+    #The decorators must be in this order or it won't work.   
+    @staticmethod
+    @overrides
+    def makeHumanMove(game, player):
+        while True:
+            try:
+                if player==1:
+                    print("You are O")
+                else:
+                    print("You are X")
+                game.makeMove(int(input("Where would you like to go? "))-1, player)
+                break
+            except:
+                print("That didn't seem to work.")
     
     def __init__(self):
         TwoPlayerGame.__init__(self)
@@ -47,15 +63,14 @@ class TicTacToeGame(TwoPlayerGame):
 
         return ans
     
+    @overrides
     def convertToStr(self):
         ans = ""
         for index, value in enumerate(self.board):
             ans+=str(index)+str(value)
         return ans
-       
-    def reset(self):
-        self.__init__()
         
+    @overrides
     def makeMove(self, where, playerNum):
         assert playerNum==1 or playerNum==-1, "Players can only play 1 or -1, not '{}'".format(playerNum)
         if self.board[where]==0:
@@ -64,6 +79,7 @@ class TicTacToeGame(TwoPlayerGame):
         else:
             raise IllegalMove("Cannot make move at '{}' by player '{}' because it is already taken. {}".format(where, playerNum, self))
     
+    @overrides
     #undoes the move with index 'moveIndex' and returns it
     #if moveIndex is unspecified, it defaults to the last move made
     def undoMove(self, moveIndex = None):
@@ -74,7 +90,7 @@ class TicTacToeGame(TwoPlayerGame):
         self.board[move[0]]=0 #undo the move
         return move
         
-    
+    @overrides
     #determines who won the game, if anyone
     #returns None if no one has won the game and the game is not over yet
     #returns 0 if the game is a tie
@@ -123,9 +139,10 @@ class TicTacToeGame(TwoPlayerGame):
             
         return ans
     
+    @overrides
     #returns a list of the open spaces on the board
     #upgrade: might be faster as a property
-    def getPossibleMoves(self):
+    def getPossibleMoves(self, playerNum = None):
         ans = []
         for i, val in enumerate(self.board):
             if val==0:
@@ -139,19 +156,6 @@ class TicTacToeGame(TwoPlayerGame):
         for move in self.pastMoves:
             ans.makeMove(*move)
         return ans
-    
-    @staticmethod    
-    def makeHumanMove(game, player):
-        while True:
-            try:
-                if player==1:
-                    print("You are O")
-                else:
-                    print("You are X")
-                game.makeMove(int(input("Where would you like to go? "))-1, player)
-                break
-            except:
-                print("That didn't seem to work.")
                 
     
                 
