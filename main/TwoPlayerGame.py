@@ -1,10 +1,11 @@
+import random
+
 '''
 TwoPlayerGame is an abstract class (with the occasional pre-implemented method)
 ...for any two player game where the game has a state
 ...and players can make moves (represented by numbers or strings).
 If all of the methods are implemented, a PolicyPlayer can learn to play the game.
 '''
-import random
 
 class IllegalMove(RuntimeError):
     pass
@@ -65,12 +66,12 @@ class TwoPlayerGame:
         raise NotImplementedError
     
     @staticmethod
-    def makeRandomMove(game, player):
-        game.makeMove(random.choice(game.getPossibleMoves(player = player)), player)
+    def makeRandomMove(game, playerNum):
+        game.makeMove(random.choice(game.getPossibleMoves(playerNum = playerNum)), playerNum)
 
     @staticmethod
-    def makeHumanMove(game, player):
-        print("Your options are: {}".format(game.getPossibleMoves(player = player)))
+    def makeHumanMove(game, playerNum):
+        print("Your options are: {}".format(game.getPossibleMoves(playerNum = playerNum)))
         while True:
             try:
                 playerMove = input("Where would you like to go? ")
@@ -78,7 +79,7 @@ class TwoPlayerGame:
                     playerMove = int(playerMove)
                 except ValueError: #if the string can't be converted to an int
                     pass
-                game.makeMove(playerMove, player)
+                game.makeMove(playerMove, playerNum)
                 break #the move was successful, so break out of the while loop and return
             except:
                 print("That didn't seem to work.")

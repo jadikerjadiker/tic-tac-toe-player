@@ -1,6 +1,10 @@
 from TwoPlayerGame import TwoPlayerGame, IllegalMove
 from copy import deepcopy
+from UsefulThings import assertPython3
 from overrides import overrides
+
+assertPython3()
+
 '''
 The state of the game is represented by a list with four numbers. [[1, 2], [3, 4]]
 The first two are player -1's left hand and right hand
@@ -30,12 +34,17 @@ When a player has both hands out of the game, they lose (and their opponent wins
 The game starts with a 1 on each hand for both players.
 '''
 class ChopsticksGame(TwoPlayerGame):
-    def __init__(self, state = None):
+    #state is the starting stat eof the game
+    #tieLimit determines when a tie game occurs
+    #if a state occurs tieLimit or more times within the course of a game, the game is a tie
+    def __init__(self, state = None, tieLimit = 3):
         if state is None:
             state = [[1, 1], [1, 1]] #default
         TwoPlayerGame.__init__(self)
         self.state = state
-        self.allStates = []
+        self.tieLimit = tieLimit
+        self.allStates = [] #used to make self.undoMove() run faster
+        self.stateCounter = {} #used to make checking for a tie in self.whoWon() faster
         self.saveState()
     
     def __str__(self):
@@ -56,6 +65,12 @@ class ChopsticksGame(TwoPlayerGame):
         if other:
             playerNum*=-1
         return (playerNum+1)//2
+    
+    #inverse function of playerNumToIndex()
+    def indexToPlayerNum(self, index, other = False):
+        if other:
+            index = (index+1)%2
+        return (2*index)-1
     
     #given a player number and a hand number, returns the hand
     def getHand(self, playerNum, handNum, otherPlayer = False, otherHand = False):
@@ -101,13 +116,50 @@ class ChopsticksGame(TwoPlayerGame):
     #(as a copy so it doesn't get edited by something editing the current state)    
     def saveState(self):
         self.allStates.append(deepcopy(self.state))
-        
+        stringState = self.convertToStr()
+        try:
+            self.stateCounter[stringState]+=1
+        except KeyError: #hasn't counted this state before
+            self.stateCounter[stringState] = 1
+       
     @overrides
     def getPossibleMoves(self, playerNum):
         allMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
+        def removeMoves(*numbers):
+            for number in numbers:
+                try:
+                    del allMoves[number]
+                except KeyError: #it's already been deleted
+                    pass
+        
         player = self.getPlayer(playerNum)
         otherPlayer = self.getPlayer(playerNum, other = True)
-        if min #TODO finish
+        testSplit = True
+        if player[0]==0:
+            removeMoves(0, 1)
+            testSplit = False
+            
+        if player[1]==0:
+            removeMoves(3, 4)
+            testSplit = False
+            
+        if otherPlayer[0]==0:
+            removeMoves(1, 3)
+            
+        if otherPlayer[1]==0:
+            removeMoves(2, 4)
+        
+        #if the player can't split
+        if not(testSplit and self.canSplit(player = player)):
+            #this won't have been deleted before, so I don't have to run removeMoves(5); I can just delete it.
+            del allMoves[5] 
+        
+        #it should return a list, not a dictionary, so create the list and copy
+        #the indicies from the dictionary that are still there
+        ans = []  
+        for move in allMoves:
+            ans.append(move)
+        return ans
     
     @overrides
     def makeMove(self, move, playerNum):
@@ -151,24 +203,29 @@ class ChopsticksGame(TwoPlayerGame):
     def undoMove(self):
         self.pastMoves.pop()
         self.allStates.pop()
+        self.stateCounter[self.convertToStr()]-=1
         self.state = deepcopy(self.allStates[-1])
         
-    
     @overrides
     #returns 1 if player 1 won, -1 if player -1 won, 0 if tie, and None if game is not complete
     def whoWon(self):
         for index, player in enumerate(self.state):
             #the player has only 0's (they are out of the game)
             if max(player)==0:
-                return 
-        
-        
+                return self.indexToPlayerNum(index)
+        #check for tie
+        if self.tieLimit:
+            for stringState, counter in self.stateCounter.items():
+                if counter>=self.tieLimit:
+                    return 0
+                    
+        return None
         
 if __name__  == "__main__":
-    from TwoPlayerGamePlayer import TwoPlayerGamePlayer
+    from TwoPlayerGame import TwoPlayerGamePlayer
     gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
     while True:
-        gamePlayer.play(who = ('random', 'human'))
+        gamePlayer.play(who = ('human', 'human'))
     
     '''
     def moveAndPrint(game, move, player):
