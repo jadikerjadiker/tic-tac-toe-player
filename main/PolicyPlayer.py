@@ -33,6 +33,9 @@ Remember, the policy player only changes the probabilities up through its last
 class UncreatablePolicy(RuntimeError):
     def __init__(self):
         RuntimeError.__init__("Was not given a board with which to create a new policy.")
+        
+class NonExistantPolicy(RuntimeError):
+    pass
 
 #basically just a fancy dict that stores the value of choosing each action at a particular state
 #It can suggest values to choose and be greedy (choose its 'best' option) or
@@ -41,11 +44,14 @@ class Policy:
     #possActions is a list of actions that are actually choosable when suggesting
     #defaultValue is the default value for choosing each action
     def __init__(self, possActions, defaultValue = 0):
+        #dps
+        print("New policy created! possActions is {}".format(possActions))
         self.values = {} #the dict to store the value of choosing each action
         self.possActions = possActions #a list of all the moves this policy has to keep track of
         self.defaultValue = defaultValue
         for action in possActions:
             self.values[action] = self.defaultValue
+        print("final values ended up being {}".format(self.values))
     
     def __str__(self):
         return str(self.values)
@@ -97,45 +103,59 @@ class TwoPlayerPolicyPlayer:
     #makes a move in the game based on its policies and exploreRate 
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
+        myGame = game
         if me==-1:
-            policy = self.getPolicy(game.getReversedPlayers())
-        else: #me==1
+            myGame = game.getReversedPlayers()
+        
+        try:
             policy = self.getPolicy(game)
+        except NonExistantPolicy:
+            #dps
+            print("game: {}".format(myGame))
+            print("Running game.getPossibleMoves early to get result: {}".format(game.getPossibleMoves(playerNum = 1)))
+            print("Will now create a new policy based on ^^^")
+            policy = self.getPolicy(myGame, myGame.getPossibleMoves(playerNum = 1))
             
         explore = random.random()<self.exploreRate
-        moveIndex = len(game.pastMoves)
+        moveIndex = len(myGame.pastMoves)
         if game!=self.curGameInfo[0]: #new game; rewrite self.curGameInfo
             self.curGameInfo = [game, me, []]
         if explore: #add the explore move to the exploreMoves list
             self.curGameInfo[2].append(moveIndex)
+        #dp
+        print("Policy, myGame, me: {}, {}, {}".format(policy, myGame, me))
         game.makeMove(policy.suggest(explore = explore), me)
-        
+      
     #Given a game or string representation of a game, returns the policy for that game position
-    #Creates policies for positions it hasn't explored yet
-    def getPolicy(self, game):
+    #If a policy for that position does not yet exist and it is given possibleMoves (a list of moves that are availible in the position),
+    #...it will create (using addPolicy) a new policy and return that new policy
+    #If a policy for that position does not yet exist and it is not given possibleMoves, it raises a NonExistantPolicy error
+    def getPolicy(self, game, possibleMoves = None):
         if isinstance(game, str):#given the string representation of a board
             try:
                 return self.policies[game] #get the policy
             except:
-                raise RuntimeError("Could not find a policy with string code '{}'".format(game))
+                raise NonExistantPolicy("Could not find a policy with string code '{}'".format(game))
         else: #given an actual game
             try:
                 stringIndex = game.convertToStr() #cache in case of KeyError
                 return self.policies[stringIndex] #get the policy for that move
             except KeyError: #this policy doesn't exist yet
-                return self.addPolicy(game, stringIndex) #make and get the new policy
-                
+                if possibleMoves:
+                    return self.addPolicy(game, possibleMoves)
+                raise NonExistantPolicy
+
     #takes a game, and creates a new empty policy for it
     #The policy does not include impossible moves
     #Returns the new policy that was added to the game
     #If there is a policy already there, it will overwrite it.
     #If provided, stringIndex should be game.convertToStr()
-    def addPolicy(self, game, stringIndex = None):
+    def addPolicy(self, game, possibleMoves, stringIndex = None):
         #If it hasn't been given, compute stringIndex
         if stringIndex is None:
             stringIndex = game.convertToStr()
         #add the policy to the policies property with the string version of the board as the index to reach it
-        policy = Policy(possActions = game.getPossibleMoves(), defaultValue = self.defaultPolicyValue)
+        policy = Policy(possActions = possibleMoves, defaultValue = self.defaultPolicyValue)
         self.policies[stringIndex] = policy
         return policy
         
@@ -147,10 +167,14 @@ class TwoPlayerPolicyPlayer:
     #me is the player you want it to update as
     #exploreMoves is a list of exploratory moves made by the player
     #...where 1 corresponds to the second move in the game
+    #assumes that if there is a winner, then the last person to move won the game
     def update(self, gameInfo = None):
+        #dp
+        print("Updating!!!")
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
+        print("Game, me, exploreMoves: {}, {}, {}".format(game, me, exploreMoves))
         winner = game.whoWon()
         wentLast = False #whether or not I made the last move in the game
         rewardIndex = 0 #index to get value from self.rewards, default to loss
@@ -169,7 +193,9 @@ class TwoPlayerPolicyPlayer:
         #So, I can convert the game so the policy player is player 1
         #...and not run into any issues later on
         if me==-1:
+            print("Original pastMoves: {}\nOriginal allStates: {}".format(game.pastMoves, game.allStates))
             game = game.getReversedPlayers()
+            print("New pastMoves: {}\nNew allStates: {}".format(game.pastMoves, game.allStates))
         else:
             #I will be editing the board, so I need to copy the game
             game = game.copy()
@@ -183,9 +209,12 @@ class TwoPlayerPolicyPlayer:
         #I'm not trying to update for any move that occured before an explore move
         while pastMovesLen>0 and (not pastMovesLen+1 in exploreMoves):
             #the particular move we're updating
-            move = game.undoMove()[0]
+            move, playerNum = game.undoMove()
+            #dps
+            print("Getting policy for game:{}, move:{} and playerNum:{}".format(game, move, playerNum))
             #the value dict of the policy we're updating
-            policyValues = self.getPolicy(game).values
+            policyValues = self.getPolicy(game, game.getPossibleMoves(playerNum = 1)).values
+            print("The policy we got was: {}".format(policyValues))
             #the previous, or 'past' value of that move
             pastVal = policyValues[move]
             #do the update
@@ -220,7 +249,8 @@ if __name__ == "__main__":
     print("Working...")
     winnerList = []
     from TwoPlayerGame import TwoPlayerGamePlayer
-    gamePlayer = TwoPlayerGamePlayer(tttg.TicTacToeGame)
+    from ChopsticksGame import ChopsticksGame
+    gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
     while True:
         exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
         gamesToPlay = 100000

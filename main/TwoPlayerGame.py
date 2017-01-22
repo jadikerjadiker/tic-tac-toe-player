@@ -15,6 +15,26 @@ class TwoPlayerGame:
     def __init__(self):
         self.pastMoves = []
     
+    @staticmethod
+    def makeRandomMove(game, playerNum):
+        game.makeMove(random.choice(game.getPossibleMoves(playerNum = playerNum)), playerNum)
+
+    @staticmethod
+    def makeHumanMove(game, playerNum):
+        print("Your options are: {}".format(game.getPossibleMoves(playerNum = playerNum)))
+        while True:
+            try:
+                playerMove = input("Where would you like to go? ")
+                try:
+                    playerMove = int(playerMove)
+                except ValueError: #if the string can't be converted to an int
+                    pass
+                game.makeMove(playerMove, playerNum)
+                break #the move was successful, so break out of the while loop and return
+            except:
+                print("That didn't seem to work.")
+                
+    
     #Convert the state of this game into a unique string
     #If two games are in the same state, they should return the same string
     #
@@ -44,7 +64,9 @@ class TwoPlayerGame:
     #Better implementations of this function may include a 'moveIndex' variable
     #that allows the undo of a particular move or bring the state of the game
     #back to that particular move
+    #returns the last full move ((move, playerNum)) that was made
     def undoMove(self):
+        #return move
         raise NotImplementedError
         
     #Returns a new game object that's a copy of the old one but with the player numbers swapped
@@ -64,26 +86,6 @@ class TwoPlayerGame:
     #player -1 won: -1
     def whoWon(self):
         raise NotImplementedError
-    
-    @staticmethod
-    def makeRandomMove(game, playerNum):
-        game.makeMove(random.choice(game.getPossibleMoves(playerNum = playerNum)), playerNum)
-
-    @staticmethod
-    def makeHumanMove(game, playerNum):
-        print("Your options are: {}".format(game.getPossibleMoves(playerNum = playerNum)))
-        while True:
-            try:
-                playerMove = input("Where would you like to go? ")
-                try:
-                    playerMove = int(playerMove)
-                except ValueError: #if the string can't be converted to an int
-                    pass
-                game.makeMove(playerMove, playerNum)
-                break #the move was successful, so break out of the while loop and return
-            except:
-                print("That didn't seem to work.")
-                
 
 
 class TwoPlayerGamePlayer:

@@ -125,23 +125,28 @@ class ChopsticksGame(TwoPlayerGame):
     @overrides
     def getPossibleMoves(self, playerNum):
         allMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
+        #dps
+        print("getPossibleMoves: {}, {}".format(self, playerNum))
         def removeMoves(*numbers):
+            print("Removing moves: {}".format(numbers))
             for number in numbers:
                 try:
                     del allMoves[number]
                 except KeyError: #it's already been deleted
                     pass
+            print("allMoves when done: {}".format(allMoves))
         
         player = self.getPlayer(playerNum)
+        print("Here's my player: {}".format(player))
         otherPlayer = self.getPlayer(playerNum, other = True)
-        testSplit = True
+        testSplit = False
         if player[0]==0:
-            removeMoves(0, 1)
-            testSplit = False
+            removeMoves(1, 2)
+            testSplit = True
             
         if player[1]==0:
             removeMoves(3, 4)
-            testSplit = False
+            testSplit = True
             
         if otherPlayer[0]==0:
             removeMoves(1, 3)
@@ -159,11 +164,14 @@ class ChopsticksGame(TwoPlayerGame):
         ans = []  
         for move in allMoves:
             ans.append(move)
+            
+        print("poss moves: {}".format(ans))
         return ans
     
     @overrides
     def makeMove(self, move, playerNum):
-        #makeMove() main
+        #dp
+        print("makeMove: game, move, playerNum: {}, {}, {}".format(self, move, playerNum))
         player = self.getPlayer(playerNum)
         if move==5:
             #one of the hands is not 0 or the other hand is not even
@@ -174,7 +182,7 @@ class ChopsticksGame(TwoPlayerGame):
             #find the value of the non-largest hand and split it and set it to be the player
             self.state[self.playerNumToIndex(playerNum)] = [max(self.state[self.playerNumToIndex(playerNum)])//2]*2
         else:
-            if move<0:
+            if move<=0:
                 raise IllegalMove("Invalid move '{}'".format(move))
             otherPlayer = self.getPlayer(playerNum, other = True)
             
@@ -201,10 +209,11 @@ class ChopsticksGame(TwoPlayerGame):
     @overrides
     #Undoes the last move of the game
     def undoMove(self):
-        self.pastMoves.pop()
+        move = self.pastMoves.pop()
         self.allStates.pop()
         self.stateCounter[self.convertToStr()]-=1
         self.state = deepcopy(self.allStates[-1])
+        return move
         
     @overrides
     #returns 1 if player 1 won, -1 if player -1 won, 0 if tie, and None if game is not complete
