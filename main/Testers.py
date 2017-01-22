@@ -1,20 +1,20 @@
-from TicTacToeGame import TicTacToeGame
+from TwoPlayerGame import TwoPlayerGamePlayer
 import random
 import UsefulThings as useful
 
-def testAgainstRandom(player, rounds = 50, gamesPerTest = 1000, comment = 1, pctIncrement = 2):
-    def oneRound(player, games, comment):
+def testAgainstRandom(player, game, rounds = 50, gamesPerRound = 1000, gameParameters = None, comment = 1, pctIncrement = 2):
+    def oneRound(player, gameClass, numberOfGames, gameParameters, comment):
         results = [0]*3 #[losses, ties, wins] for the player
-        for gameNum in range(games):
+        for gameNum in range(numberOfGames):
             if comment>1:
-                print("Testing game {}/{}".format((gameNum+1), games))
-            game = TicTacToeGame()
+                print("Testing game {}/{}".format((gameNum+1), numberOfGames))
+            game = gameClass(*gameParameters[0], **gameParameters[1])
             playerNum = random.choice([1, -1])
             while game.whoWon()==None:
                 if playerNum==1:
                     player.makeMove(game, 1)
                 else: #player==-1
-                    TicTacToeGame.makeRandomMove(game, -1)
+                    gameClass.makeRandomMove(game, -1)
                 playerNum*=-1
                 
             results[game.whoWon()+1]+=1
@@ -25,12 +25,15 @@ def testAgainstRandom(player, rounds = 50, gamesPerTest = 1000, comment = 1, pct
         if comment>0:
             print("Results of one round:\n{}".format(results))
         return results
-        
-    lows = [gamesPerTest+1]*3
+    
+    #testAgainstRandom() main
+    if gameParameters is None:
+        gameParameters = ([], {})
+    lows = [gamesPerRound+1]*3
     highs = [-1]*3
     overall = [0]*3
     for i in range(rounds):
-        test = oneRound(player, games = gamesPerTest, comment = comment-1)
+        test = oneRound(player = player, gameClass = game, numberOfGames = gamesPerRound, gameParameters = gameParameters, comment = comment-1)
         if pctIncrement>0:
             useful.printPercent(i, rounds, incrementAmt = pctIncrement)
         for j, testVal in enumerate(test):

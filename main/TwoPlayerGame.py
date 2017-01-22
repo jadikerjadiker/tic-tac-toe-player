@@ -107,6 +107,7 @@ class TwoPlayerGamePlayer:
     #an object: pass in an object with the method "makeMove(game, player)" to make a move in the game
     #gameClassIndex is the index of the game class you want it to play.
     #comment is an integer. The higher the integer, the more info the function will print.
+    #gameParameters is a tuple ([listOfNonKeywordArgs], {dictOfKewordArgs}) to pass to the init of the game when playing it.
     #If one of the players is 'human' then comment is automatically set to 1
     def play(self, who = ("random", "random"), gameClassIndex = 0, comment = 0, gameParameters = None):
         gameClass = self.gameClasses[gameClassIndex]
@@ -126,21 +127,23 @@ class TwoPlayerGamePlayer:
         curPlayer = random.choice([-1, 1])
         
         if gameParameters == None:
-            gameParameters = [] #default
+            gameParameters = ([], {}) #default
         #create the game to play
-        game = gameClass(*gameParameters)
+        game = gameClass(*gameParameters[0], **gameParameters[1])
         if comment:
             print("New game!")
         while game.whoWon()==None:
             if comment:
-                print(game)
+                print("\n"+str(game))
                 #uses 1 instead of -1 as a player number
                 #uses 2 instead of 1 as a player number
                 print("Player {}'s turn!".format(((curPlayer+1)//2)+1)) 
             functions[curPlayer](game, curPlayer) #run the function to have the player make their move
+            if comment:
+                print("Player {} moved.".format(((curPlayer+1)//2)+1))
             curPlayer*=-1 #other player's turn
         if comment:
-            print(game)
+            print("\n"+str(game))
             winner = game.whoWon()
             
             if winner==1:

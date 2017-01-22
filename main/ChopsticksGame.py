@@ -126,18 +126,18 @@ class ChopsticksGame(TwoPlayerGame):
     def getPossibleMoves(self, playerNum):
         allMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
         #dps
-        print("getPossibleMoves: {}, {}".format(self, playerNum))
+       #print("getPossibleMoves: {}, {}".format(self, playerNum))
         def removeMoves(*numbers):
-            print("Removing moves: {}".format(numbers))
+           #print("Removing moves: {}".format(numbers))
             for number in numbers:
                 try:
                     del allMoves[number]
                 except KeyError: #it's already been deleted
                     pass
-            print("allMoves when done: {}".format(allMoves))
+           #print("allMoves when done: {}".format(allMoves))
         
         player = self.getPlayer(playerNum)
-        print("Here's my player: {}".format(player))
+       #print("Here's my player: {}".format(player))
         otherPlayer = self.getPlayer(playerNum, other = True)
         testSplit = False
         if player[0]==0:
@@ -165,13 +165,13 @@ class ChopsticksGame(TwoPlayerGame):
         for move in allMoves:
             ans.append(move)
             
-        print("poss moves: {}".format(ans))
+       #print("poss moves: {}".format(ans))
         return ans
     
     @overrides
     def makeMove(self, move, playerNum):
         #dp
-        print("makeMove: game, move, playerNum: {}, {}, {}".format(self, move, playerNum))
+       #print("makeMove: game, move, playerNum: {}, {}, {}".format(self, move, playerNum))
         player = self.getPlayer(playerNum)
         if move==5:
             #one of the hands is not 0 or the other hand is not even
@@ -221,7 +221,7 @@ class ChopsticksGame(TwoPlayerGame):
         for index, player in enumerate(self.state):
             #the player has only 0's (they are out of the game)
             if max(player)==0:
-                return self.indexToPlayerNum(index)
+                return self.indexToPlayerNum(index, other = True)
         #check for tie
         if self.tieLimit:
             for stringState, counter in self.stateCounter.items():

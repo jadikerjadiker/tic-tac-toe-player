@@ -45,13 +45,13 @@ class Policy:
     #defaultValue is the default value for choosing each action
     def __init__(self, possActions, defaultValue = 0):
         #dps
-        print("New policy created! possActions is {}".format(possActions))
+       #print("New policy created! possActions is {}".format(possActions))
         self.values = {} #the dict to store the value of choosing each action
         self.possActions = possActions #a list of all the moves this policy has to keep track of
         self.defaultValue = defaultValue
         for action in possActions:
             self.values[action] = self.defaultValue
-        print("final values ended up being {}".format(self.values))
+       #print("final values ended up being {}".format(self.values))
     
     def __str__(self):
         return str(self.values)
@@ -99,8 +99,11 @@ class TwoPlayerPolicyPlayer:
         #...0 corresponds to the first move.
         self.curGameInfo = [None, None, []]
 
-    #takes the game (game), and the player number of the policy player (me)
-    #makes a move in the game based on its policies and exploreRate 
+    #Takes the game (game), and the player number of the policy player (me)
+    #Makes a move in the game based on its policies and exploreRate
+    #Note that the PolicyPlayer always stores policies such that it's the one making the move for Player 1
+    #So if it's playing as player -1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
+    #...instead of "game"
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
         myGame = game
@@ -108,12 +111,12 @@ class TwoPlayerPolicyPlayer:
             myGame = game.getReversedPlayers()
         
         try:
-            policy = self.getPolicy(game)
+            policy = self.getPolicy(myGame)
         except NonExistantPolicy:
             #dps
-            print("game: {}".format(myGame))
-            print("Running game.getPossibleMoves early to get result: {}".format(game.getPossibleMoves(playerNum = 1)))
-            print("Will now create a new policy based on ^^^")
+           #print("game: {}".format(myGame))
+           #print("Running game.getPossibleMoves early to get result: {}".format(game.getPossibleMoves(playerNum = 1)))
+           #print("Will now create a new policy based on ^^^")
             policy = self.getPolicy(myGame, myGame.getPossibleMoves(playerNum = 1))
             
         explore = random.random()<self.exploreRate
@@ -123,7 +126,7 @@ class TwoPlayerPolicyPlayer:
         if explore: #add the explore move to the exploreMoves list
             self.curGameInfo[2].append(moveIndex)
         #dp
-        print("Policy, myGame, me: {}, {}, {}".format(policy, myGame, me))
+       #print("Policy, game, me: {}, {}, {}".format(policy, game, me))
         game.makeMove(policy.suggest(explore = explore), me)
       
     #Given a game or string representation of a game, returns the policy for that game position
@@ -167,23 +170,20 @@ class TwoPlayerPolicyPlayer:
     #me is the player you want it to update as
     #exploreMoves is a list of exploratory moves made by the player
     #...where 1 corresponds to the second move in the game
-    #assumes that if there is a winner, then the last person to move won the game
     def update(self, gameInfo = None):
         #dp
-        print("Updating!!!")
+        #print("Updating!!!")
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
-        print("Game, me, exploreMoves: {}, {}, {}".format(game, me, exploreMoves))
+       #print("Game, me, exploreMoves: {}, {}, {}".format(game, me, exploreMoves))
         winner = game.whoWon()
-        wentLast = False #whether or not I made the last move in the game
+        wentLast = (game.pastMoves[-1][1] == me) #whether or not I made the last move in the game
         rewardIndex = 0 #index to get value from self.rewards, default to loss
         if winner == me: #updating from a  win
             rewardIndex = 2
-            wentLast = True
         elif winner == 0: #tie
             rewardIndex = 1
-            wentLast = None #can't tell if I went last yet
         reward = self.rewards[rewardIndex]
         if wentLast==None:
             #check the last move and see if I was the one who made it
@@ -193,9 +193,9 @@ class TwoPlayerPolicyPlayer:
         #So, I can convert the game so the policy player is player 1
         #...and not run into any issues later on
         if me==-1:
-            print("Original pastMoves: {}\nOriginal allStates: {}".format(game.pastMoves, game.allStates))
+           #print("Original pastMoves: {}\nOriginal allStates: {}".format(game.pastMoves, game.allStates))
             game = game.getReversedPlayers()
-            print("New pastMoves: {}\nNew allStates: {}".format(game.pastMoves, game.allStates))
+           #print("New pastMoves: {}\nNew allStates: {}".format(game.pastMoves, game.allStates))
         else:
             #I will be editing the board, so I need to copy the game
             game = game.copy()
@@ -211,10 +211,10 @@ class TwoPlayerPolicyPlayer:
             #the particular move we're updating
             move, playerNum = game.undoMove()
             #dps
-            print("Getting policy for game:{}, move:{} and playerNum:{}".format(game, move, playerNum))
+           #print("Getting policy for game:{}, move:{} and playerNum:{}".format(game, move, playerNum))
             #the value dict of the policy we're updating
-            policyValues = self.getPolicy(game, game.getPossibleMoves(playerNum = 1)).values
-            print("The policy we got was: {}".format(policyValues))
+            policyValues = self.getPolicy(game).values #we will need a "myGame" here
+           #print("The policy we got was: {}".format(policyValues))
             #the previous, or 'past' value of that move
             pastVal = policyValues[move]
             #do the update
@@ -250,35 +250,43 @@ if __name__ == "__main__":
     winnerList = []
     from TwoPlayerGame import TwoPlayerGamePlayer
     from ChopsticksGame import ChopsticksGame
+    gameClass = ChopsticksGame
     gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
+    if gameClass==ChopsticksGame:
+        gameParameters =  ([], {"state":None, "tieLimit":3})
     while True:
-        exploreRate, learningRate, rewards = (0, .5, [-3, 0, 5])
-        gamesToPlay = 100000
+        exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
+        gamesToPlay = 10000
         playerNumber = 1
         
         p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
         playAgainst = 'random'
         for i in range(gamesToPlay):
-                useful.printPercent(i, gamesToPlay, 5, 1)
-                g = gamePlayer.play(who = (playAgainst, p))
+                useful.printPercent(i, gamesToPlay, 1, 1)
+                g = gamePlayer.play(who = (playAgainst, p), gameParameters = gameParameters)
                 p.update()
+        #dp
+        print({index: str(p.policies[index]) for index in p.policies})
+        print(len(p.policies))
         p.exploreRate = 0
         pctIncrement = 10
-        results = test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
+        results = test.testAgainstRandom(p, gameClass, gamesPerRound = 100, rounds = 25, comment = 0, pctIncrement = pctIncrement)
         print("Player {} done.".format(playerNumber))
         print("Winners without most recent player included: {}".format(winnerList))
         
         while True:
-            gamePlayer.play(who = ('human', p))
+            gamePlayer.play(who = ('human', p), gameParameters = gameParameters)
         
         while results[1][0]>0:
             playerNumber+=1
             p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
             playAgainst = 'random'
             for i in range(gamesToPlay):
-                    useful.printPercent(i, gamesToPlay, 5, 1)
-                    g = gamePlayer.play(who = (playAgainst, p))
-                    p.update()
+                useful.printPercent(i, gamesToPlay, 5, 1)
+                g = gamePlayer.play(who = (playAgainst, p))
+                p.update()
+                #dp
+                #print(p.policies)
             p.exploreRate = 0
             pctIncrement = 10
             results = test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
