@@ -2,6 +2,7 @@ import random
 import sys
 import UsefulThings as useful
 import Testers as test
+import json
 import TicTacToeGame as tttg
 import LogicalPlayer as lp #TODO used for testing
 import OldPolicyPlayer as opp #TODO used for testing
@@ -98,6 +99,14 @@ class TwoPlayerPolicyPlayer:
         #exploreMoves is a list of the moves that were explore moves in the most recent game it played.
         #...0 corresponds to the first move.
         self.curGameInfo = [None, None, []]
+
+    def save(self, fileName):
+        with open(fileName, 'w') as f:
+            json.dump(self.policies, f)
+            
+    def load(self, fileName):
+        with open(fileName, 'r') as f:
+            self.policies = json.load(f)
 
     #Takes the game (game), and the player number of the policy player (me)
     #Makes a move in the game based on its policies and exploreRate
@@ -254,50 +263,26 @@ if __name__ == "__main__":
     gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
     if gameClass==ChopsticksGame:
         gameParameters =  ([], {"state":None, "tieLimit":3})
+    exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
+    gamesToPlay = 1000
+    playAgainst = 'random'
+    useful.askYesOrNo("Hello again")
     while True:
-        exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
-        gamesToPlay = 10000
-        playerNumber = 1
-        
         p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-        playAgainst = 'random'
         for i in range(gamesToPlay):
-                useful.printPercent(i, gamesToPlay, 1, 1)
+                useful.printPercent(i, gamesToPlay, 5, 1)
                 g = gamePlayer.play(who = (playAgainst, p), gameParameters = gameParameters)
                 p.update()
-        #dp
-        print({index: str(p.policies[index]) for index in p.policies})
-        print(len(p.policies))
         p.exploreRate = 0
         pctIncrement = 10
         results = test.testAgainstRandom(p, gameClass, gamesPerRound = 100, rounds = 25, comment = 0, pctIncrement = pctIncrement)
-        print("Player {} done.".format(playerNumber))
-        print("Winners without most recent player included: {}".format(winnerList))
         
-        while True:
-            gamePlayer.play(who = ('human', p), gameParameters = gameParameters)
-        
-        while results[1][0]>0:
-            playerNumber+=1
-            p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
-            playAgainst = 'random'
-            for i in range(gamesToPlay):
-                useful.printPercent(i, gamesToPlay, 5, 1)
-                g = gamePlayer.play(who = (playAgainst, p))
-                p.update()
-                #dp
-                #print(p.policies)
-            p.exploreRate = 0
-            pctIncrement = 10
-            results = test.testAgainstRandom(p, comment = 0, pctIncrement = pctIncrement)
-            print("Player {} done.".format(playerNumber))
-            print("Winners without most recent player included: {}".format(winnerList))
+        if useful.askYesOrNo("Would you like to play it?"):
+            while True:
+                gamePlayer.play(who = ('human', p), gameParameters = gameParameters)
+                if not useful.askYesOrNo("Play again?"):
+                    break
     
-        print("Player number {} is a winner!".format(playerNumber))
-        winnerList.append(playerNumber)
-        while True:
-            gamePlayer.play('human', p)
-            
     #while True:
     #    tttg.play(who = ('human', p))
     '''
