@@ -4,8 +4,7 @@ import UsefulThings as useful
 import Testers as test
 import json
 import TicTacToeGame as tttg
-import LogicalPlayer as lp #TODO used for testing
-import OldPolicyPlayer as opp #TODO used for testing
+
 
 
 assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
@@ -243,6 +242,8 @@ class TwoPlayerPolicyPlayer:
 if __name__ == "__main__":
     import TicTacToeGame as tttg
     import timeit
+    import LogicalPlayer as lp
+    import OldPolicyPlayer as opp
     '''
     p = PolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [0, 1, 3])
     for i in range(3):
