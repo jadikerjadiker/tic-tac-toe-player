@@ -123,8 +123,16 @@ class TwoPlayerGamePlayer:
         whoToFunction = {"random":gameClass.makeRandomMove, "human":gameClass.makeHumanMove}
         #the functions that should be called when that player wants to move
         #TODO update: use list comprehension here
-        functions = [whoToFunction[who[0]], whoToFunction[who[1]]]
-        curPlayerNum = random.choice([-1, 1])
+        functions = []
+        for index, player in enumerate(who):
+            if isinstance(player, str):
+                functions.append(whoToFunction[who[index]])
+                if player=="human" and comment<1:
+                    comment = 1
+            else: #player is an object with a "makeMove" method
+                functions.append(player.makeMove)
+                
+        curPlayerNum = random.choice([0, 1])
         
         if gameParameters == None:
             gameParameters = ([], {}) #default

@@ -256,12 +256,15 @@ if __name__ == "__main__":
     from ChopsticksGame import ChopsticksGame
     gameClass = ChopsticksGame
     gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
-    if gameClass==ChopsticksGame:
-        gameParameters =  ([], {"state":None, "tieLimit":3})
+    gamesToPlay = 10000 #default. Often overriden later.
     exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
-    gamesToPlay = 1000
     playAgainst = 'random'
     saveFile = "myPolicies.json"
+    if gameClass==ChopsticksGame:
+        gameParameters =  ([], {"state":None, "tieLimit":3})
+        exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
+        gamesToPlay = 20000
+    
     while True:
         p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
         for i in range(gamesToPlay):
@@ -272,7 +275,7 @@ if __name__ == "__main__":
         pctIncrement = 10
         results = test.testAgainstRandom(p, gameClass, gamesPerRound = 100, rounds = 25, comment = 0, pctIncrement = pctIncrement)
         
-        p.save(saveFile)
+        #p.save(saveFile)
         
         if useful.askYesOrNo("Would you like to play it?"):
             while True:

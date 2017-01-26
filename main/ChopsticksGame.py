@@ -7,7 +7,7 @@ assertPython3()
 
 '''
 The state of the game is represented by a list with four numbers. [[1, 2], [3, 4]]
-The first two are player -1's left hand and right hand
+The first two are player 0's left hand and right hand
 ...and the second two the player 1's left hand and right hand.
 
 A move is specified by one number (and the player who makes the move)
@@ -26,9 +26,9 @@ Then, both hands of the player are set to be half the value
 
 When a player hits an opponents hand, you add the two numbers together, mod 5
 ...(if more than 5 divide by 5 and get the remainder (i.e. %5)),
-...and then that becomes the opponents hand.
+...and then that becomes the opponent's hand.
 
-If a hand is 0, it is out of the game.
+If a hand is 0, it cannot be hit. (But, it can be split onto.)
 When a player has both hands out of the game, they lose (and their opponent wins)
 
 The game starts with a 1 on each hand for both players.
@@ -50,27 +50,12 @@ class ChopsticksGame(TwoPlayerGame):
     def __str__(self):
         return str(self.state)
     
-    #returns a player (a list with two numbers), given the player number (1 or -1)
+    #given a player number (either 0 or 1), returns a player (a list with two numbers), 
     #If other is True, it will return the other player
     def getPlayer(self, playerNum, other = False):
         if other:
-            playerNum*=-1
-        return self.state[self.playerNumToIndex(playerNum)]
-           
-    #Converts a player number into the index at which to get the player from the game state
-    #If other is True, it will use the player number of the other player
-    #If given -1, it will return 0
-    #If given 1, it will return 1
-    def playerNumToIndex(self, playerNum, other = False):
-        if other:
-            playerNum*=-1
-        return (playerNum+1)//2
-    
-    #inverse function of playerNumToIndex()
-    def indexToPlayerNum(self, index, other = False):
-        if other:
-            index = (index+1)%2
-        return (2*index)-1
+            playerNum = self.getOtherPlayerNum(playerNum)
+        return self.state[playerNum]
     
     #given a player number and a hand number, returns the hand
     def getHand(self, playerNum, handNum, otherPlayer = False, otherHand = False):
@@ -86,6 +71,10 @@ class ChopsticksGame(TwoPlayerGame):
     #...it will return the index of the other player or other hand of that same player
     #If given 0, it will return 1
     #If given 1, it will return 0
+    #
+    #I know that this is a duplicate of self.getOtherPlayerNum() right now,
+    #but it is meant for a different purpose, even though the code happens to
+    #be the same. Done for encapsulation purposes. Plus, it's pretty fast.
     def getOtherIndex(self, handIndex):
         return (handIndex+1)%2
         
@@ -125,17 +114,13 @@ class ChopsticksGame(TwoPlayerGame):
     @overrides
     def getPossibleMoves(self, playerNum):
         allMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
-        #dps
-       #print("getPossibleMoves: {}, {}".format(self, playerNum))
         def removeMoves(*numbers):
-           #print("Removing moves: {}".format(numbers))
             for number in numbers:
                 try:
                     del allMoves[number]
                 except KeyError: #it's already been deleted
                     pass
-           #print("allMoves when done: {}".format(allMoves))
-        
+
         player = self.getPlayer(playerNum)
        #print("Here's my player: {}".format(player))
         otherPlayer = self.getPlayer(playerNum, other = True)
@@ -165,13 +150,10 @@ class ChopsticksGame(TwoPlayerGame):
         for move in allMoves:
             ans.append(move)
             
-       #print("poss moves: {}".format(ans))
         return ans
     
     @overrides
     def makeMove(self, move, playerNum):
-        #dp
-       #print("makeMove: game, move, playerNum: {}, {}, {}".format(self, move, playerNum))
         player = self.getPlayer(playerNum)
         if move==5:
             #one of the hands is not 0 or the other hand is not even
@@ -179,8 +161,8 @@ class ChopsticksGame(TwoPlayerGame):
                 raise IllegalMove("Invalid attempt to split for player with position {}".format(player))
             
             #split it
-            #find the value of the non-largest hand and split it and set it to be the player
-            self.state[self.playerNumToIndex(playerNum)] = [max(self.state[self.playerNumToIndex(playerNum)])//2]*2
+            #find the value of the non-largest hand, split it, and set that to be the player
+            self.state[playerNum] = [max(self.state[playerNum])//2]*2
         else:
             if move<=0:
                 raise IllegalMove("Invalid move '{}'".format(move))
@@ -218,15 +200,15 @@ class ChopsticksGame(TwoPlayerGame):
     @overrides
     #returns 1 if player 1 won, -1 if player -1 won, 0 if tie, and None if game is not complete
     def whoWon(self):
-        for index, player in enumerate(self.state):
+        for playerNum, player in enumerate(self.state):
             #the player has only 0's (they are out of the game)
             if max(player)==0:
-                return self.indexToPlayerNum(index, other = True)
+                return self.getOtherPlayerNum(playerNum)
         #check for tie
         if self.tieLimit:
             for stringState, counter in self.stateCounter.items():
                 if counter>=self.tieLimit:
-                    return 0
+                    return -1
                     
         return None
         

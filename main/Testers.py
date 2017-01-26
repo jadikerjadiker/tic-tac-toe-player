@@ -9,15 +9,18 @@ def testAgainstRandom(player, game, rounds = 50, gamesPerRound = 1000, gameParam
             if comment>1:
                 print("Testing game {}/{}".format((gameNum+1), numberOfGames))
             game = gameClass(*gameParameters[0], **gameParameters[1])
-            playerNum = random.choice([1, -1])
+            playerNum = random.choice([0, 1])
             while game.whoWon()==None:
-                if playerNum==1:
-                    player.makeMove(game, 1)
-                else: #player==-1
-                    gameClass.makeRandomMove(game, -1)
-                playerNum*=-1
-                
-            results[game.whoWon()+1]+=1
+                if playerNum==0:
+                    player.makeMove(game, 0)
+                else: #player==1
+                    gameClass.makeRandomMove(game, 1)
+                playerNum = gameClass.getOtherPlayerNum(playerNum)
+            
+            #convert the whoWon() value (-1 for tie, 0 for test player win, 1 for test player loss)
+            #into an index for the list [loss, tie, win]
+            #then increase the value at that index by 1.
+            results[(game.whoWon()+2)%3]+=1
             if comment>1:
                 if comment>2:
                     print(game)
