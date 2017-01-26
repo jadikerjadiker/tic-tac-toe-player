@@ -110,28 +110,26 @@ class TwoPlayerPolicyPlayer:
 
     #Takes the game (game), and the player number of the policy player (me)
     #Makes a move in the game based on its policies and exploreRate
-    #Note that the PolicyPlayer always stores policies such that it's the one making the move for Player 1
-    #So if it's playing as player -1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
+    #Note that the PolicyPlayer always stores policies such that it's the one making the move for Player 0
+    #So if it's playing as player 1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
     #...instead of "game"
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
         myGame = game
-        if me==-1:
+        if me==1:
             myGame = game.getReversedPlayers()
         
         try:
             policy = self.getPolicy(myGame)
         except NonExistantPolicy:
-            policy = self.getPolicy(myGame, myGame.getPossibleMoves(playerNum = 1))
+            policy = self.getPolicy(myGame, myGame.getPossibleMoves(playerNum = 0))
             
         explore = random.random()<self.exploreRate
         moveIndex = len(myGame.pastMoves)
         if game!=self.curGameInfo[0]: #new game; rewrite self.curGameInfo
-            self.curGameInfo = [game, me, []]
+            self.curGameInfo = [game, me, []] #[game, playerNumber, exploreMoves]
         if explore: #add the explore move to the exploreMoves list
             self.curGameInfo[2].append(moveIndex)
-        #dp
-       #print("Policy, game, me: {}, {}, {}".format(policy, game, me))
         game.makeMove(policy.suggest(explore = explore), me)
       
     #Given a game or string representation of a game, returns the policy for that game position
@@ -154,10 +152,13 @@ class TwoPlayerPolicyPlayer:
                 raise NonExistantPolicy
 
     #takes a game, and creates a new empty policy for it
-    #The policy does not include impossible moves
-    #Returns the new policy that was added to the game
-    #If there is a policy already there, it will overwrite it.
+    #The policy only has actions for those listed in "possibleMoves"
+    #Returns the new policy that was added to the player
+    #If there is a policy already there, it will overwrite it, so be careful.
     #If provided, stringIndex should be game.convertToStr()
+    #stringIndex is provided as a parameter because often times a function that
+    #...is calling addPolicy will already have computed game.convertToStr()
+    #...so it can just pass it instead of having addPolicy() recompute it
     def addPolicy(self, game, possibleMoves, stringIndex = None):
         #If it hasn't been given, compute stringIndex
         if stringIndex is None:
@@ -176,8 +177,6 @@ class TwoPlayerPolicyPlayer:
     #exploreMoves is a list of exploratory moves made by the player
     #...where 1 corresponds to the second move in the game
     def update(self, gameInfo = None):
-        #dp
-        #print("Updating!!!")
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
@@ -187,7 +186,7 @@ class TwoPlayerPolicyPlayer:
         rewardIndex = 0 #index to get value from self.rewards, default to loss
         if winner == me: #updating from a  win
             rewardIndex = 2
-        elif winner == 0: #tie
+        elif winner == -1: #tie
             rewardIndex = 1
         reward = self.rewards[rewardIndex]
         if wentLast==None:
@@ -195,12 +194,10 @@ class TwoPlayerPolicyPlayer:
             wentLast = game.pastMoves[-1][1]==me
         #from this point on, I don't use the game to tell me what player is making the move
         #...I base it on @param wentLast.
-        #So, I can convert the game so the policy player is player 1
+        #So, I can convert the game so the policy player is player 0
         #...and not run into any issues later on
-        if me==-1:
-           #print("Original pastMoves: {}\nOriginal allStates: {}".format(game.pastMoves, game.allStates))
+        if me==1:
             game = game.getReversedPlayers()
-           #print("New pastMoves: {}\nNew allStates: {}".format(game.pastMoves, game.allStates))
         else:
             #I will be editing the board, so I need to copy the game
             game = game.copy()

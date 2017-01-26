@@ -15,10 +15,18 @@ class TwoPlayerGame:
     def __init__(self):
         self.pastMoves = []
     
+    #Get the number of the other player in the game (1 or 0 respectively)
+    @staticmethod
+    def getOtherPlayerNum(playerNum):
+        return (playerNum+1)%2
+    
+    #Make a random move in the game
     @staticmethod
     def makeRandomMove(game, playerNum):
         game.makeMove(random.choice(game.getPossibleMoves(playerNum = playerNum)), playerNum)
-
+    
+    #Interface for a human to make a move in the game.
+    #This is usually overriden in the subclass
     @staticmethod
     def makeHumanMove(game, playerNum):
         print("Your options are: {}".format(game.getPossibleMoves(playerNum = playerNum)))
@@ -38,7 +46,8 @@ class TwoPlayerGame:
     #Convert the state of this game into a unique string
     #If two games are in the same state, they should return the same string
     #
-    #Although this string technically could be used to recreate the game,
+    #Although it should technically be possible to recreate the game
+    #(at least in its current state) using the returned string
     #it does not have to be easy to recreate the game
     #from the string returned by this function
     #
@@ -76,7 +85,7 @@ class TwoPlayerGame:
         ans = self.__class__() #create an empty copy of the game
         #go through the game moves
         for move in self.pastMoves:
-            ans.makeMove(move[0], -move[1]) #make the same move with the opposite player
+            ans.makeMove(move[0], self.getOtherPlayerNum(move[1])) #make the same move with the opposite player
         return ans
         
     #situation: return value
@@ -113,18 +122,9 @@ class TwoPlayerGamePlayer:
         gameClass = self.gameClasses[gameClassIndex]
         whoToFunction = {"random":gameClass.makeRandomMove, "human":gameClass.makeHumanMove}
         #the functions that should be called when that player wants to move
-        #the first value stays None (so that we can have index 1 and -1 be different)
-        #the function at index 1 is for player 1
-        #the function at index 2 (or -1) is for player -1
-        functions = [None, None, None]
-        for playerNum, player in enumerate(who):
-            if player=='human':
-                comment = 1
-            if isinstance(player, str):
-                functions[playerNum+1] = whoToFunction[player]
-            else: #any class with a "makeMove(game, curPlayer)" function
-                functions[playerNum+1] = player.makeMove
-        curPlayer = random.choice([-1, 1])
+        #TODO update: use list comprehension here
+        functions = [whoToFunction[who[0]], whoToFunction[who[1]]]
+        curPlayerNum = random.choice([-1, 1])
         
         if gameParameters == None:
             gameParameters = ([], {}) #default
@@ -137,19 +137,19 @@ class TwoPlayerGamePlayer:
                 print("\n"+str(game))
                 #uses 1 instead of -1 as a player number
                 #uses 2 instead of 1 as a player number
-                print("Player {}'s turn!".format(((curPlayer+1)//2)+1)) 
-            functions[curPlayer](game, curPlayer) #run the function to have the player make their move
+                print("Player {}'s turn!".format(curPlayerNum+1)) #converting it to human numbers (starting at 1) before printing
+            functions[curPlayerNum](game, curPlayerNum) #run the function to have the player make their move
             if comment:
-                print("Player {} moved.".format(((curPlayer+1)//2)+1))
-            curPlayer*=-1 #other player's turn
+                print("Player {} moved.".format(curPlayerNum+1)) #converting it to human numbers (starting at 1) before printing
+            curPlayerNum = game.getOtherPlayerNum(curPlayerNum) #other player's turn
         if comment:
             print("\n"+str(game))
             winner = game.whoWon()
             
-            if winner==1:
-                print("Player 2 wins!")
-            elif winner==-1:
+            if winner==0:
                 print("Player 1 wins!")
+            elif winner==1:
+                print("Player 2 wins!")
             else:
                 print("Tie game!")
         return game
