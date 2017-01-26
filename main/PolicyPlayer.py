@@ -5,6 +5,7 @@ import Testers as test
 import json
 import TicTacToeGame as tttg
 
+#TODO delete all the commented-out print statements
 
 
 assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
@@ -97,7 +98,8 @@ class TwoPlayerPolicyPlayer:
         #exploreMoves is a list of the moves that were explore moves in the most recent game it played.
         #...0 corresponds to the first move.
         self.curGameInfo = [None, None, []]
-
+    
+    #TODO finish save and load functions
     def save(self, fileName):
         with open(fileName, 'w') as f:
             json.dump(self.policies, f)
@@ -109,21 +111,17 @@ class TwoPlayerPolicyPlayer:
     #Takes the game (game), and the player number of the policy player (me)
     #Makes a move in the game based on its policies and exploreRate
     #Note that the PolicyPlayer always stores policies such that it's the one making the move for Player 1
-    #So if it's playing as player -1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
+    #So if it's playing as player 1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
     #...instead of "game"
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
         myGame = game
-        if me==-1:
+        if me==1:
             myGame = game.getReversedPlayers()
         
         try:
             policy = self.getPolicy(myGame)
         except NonExistantPolicy:
-            #dps
-           #print("game: {}".format(myGame))
-           #print("Running game.getPossibleMoves early to get result: {}".format(game.getPossibleMoves(playerNum = 1)))
-           #print("Will now create a new policy based on ^^^")
             policy = self.getPolicy(myGame, myGame.getPossibleMoves(playerNum = 1))
             
         explore = random.random()<self.exploreRate
