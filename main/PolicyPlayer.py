@@ -29,7 +29,6 @@ The learning rate determines how fast it learns.
 Remember, the policy player only changes the probabilities up through its last
 ...explore move (or all the way through if there was no explore move)
 '''
-#TODO check to make sure that the player who went last isn't necessarily who won
 class UncreatablePolicy(RuntimeError):
     def __init__(self):
         RuntimeError.__init__("Was not given a board with which to create a new policy.")
