@@ -111,12 +111,12 @@ class TwoPlayerPolicyPlayer:
     #Takes the game (game), and the player number of the policy player (me)
     #Makes a move in the game based on its policies and exploreRate
     #Note that the PolicyPlayer always stores policies such that it's the one making the move for Player 1
-    #So if it's playing as player 1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
+    #So if it's playing as player -1, it will need to look up (and store) the policy with "myGame = game.getReversedPlayers()""
     #...instead of "game"
     def makeMove(self, game, me):
         #if the player is not assigned 1, make it 1 when evaluating the position
         myGame = game
-        if me==1:
+        if me==-1:
             myGame = game.getReversedPlayers()
         
         try:
