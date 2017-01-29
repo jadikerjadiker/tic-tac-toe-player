@@ -198,7 +198,7 @@ class ChopsticksGame(TwoPlayerGame):
         return move
         
     @overrides
-    #returns 1 if player 1 won, -1 if player -1 won, 0 if tie, and None if game is not complete
+    #returns 0 if player 0 won, 1 if player 1 won, -1 if tie, and None if game is not complete
     def whoWon(self):
         for playerNum, player in enumerate(self.state):
             #the player has only 0's (they are out of the game)

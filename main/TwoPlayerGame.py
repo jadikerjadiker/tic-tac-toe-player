@@ -161,3 +161,13 @@ class TwoPlayerGamePlayer:
             else:
                 print("Tie game!")
         return game
+        
+if __name__ == "__main__":
+    import UsefulThings as useful
+    import ChopsticksGame as cg
+    gamePlayer = TwoPlayerGamePlayer(cg.ChopsticksGame)
+    while True:
+        gamePlayer.play(who = ('human', 'human'))
+        if useful.askYesOrNo("Play again?"):
+            break
+    

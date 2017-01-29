@@ -254,8 +254,10 @@ if __name__ == "__main__":
     winnerList = []
     from TwoPlayerGame import TwoPlayerGamePlayer
     from ChopsticksGame import ChopsticksGame
-    gameClass = ChopsticksGame
-    gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
+    from TicTacToeGame import TicTacToeGame
+    gameClass = TicTacToeGame
+    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gameParameters =  ([], {}) #default
     gamesToPlay = 10000 #default. Often overriden later.
     exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
     playAgainst = 'random'
