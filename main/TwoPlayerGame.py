@@ -77,12 +77,17 @@ class TwoPlayerGame:
     def undoMove(self):
         #return move
         raise NotImplementedError
-        
+       
+    def copy(self):
+        ans = self.__class__() #create empty game of same type
+        for move in self.pastMoves:
+            ans.makeMove(move[0], move[1]) #make the same move with the opposite player
+        return ans
+     
     #Returns a new game object that's a copy of the old one but with the player numbers swapped
     #(If player 1 made a move in the current game, the returned game will have player -1 make that move and vice versa)
     def getReversedPlayers(self):
-        #dps
-        ans = self.__class__() #create an empty copy of the game
+        ans = self.__class__() #create an empty game of same type
         #go through the game moves
         for move in self.pastMoves:
             ans.makeMove(move[0], self.getOtherPlayerNum(move[1])) #make the same move with the opposite player

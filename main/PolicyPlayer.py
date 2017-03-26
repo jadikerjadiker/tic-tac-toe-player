@@ -4,6 +4,7 @@ import UsefulThings as useful
 import Testers as test
 import json
 import TicTacToeGame as tttg
+import pickle
 
 #TODO delete all the commented-out print statements
 
@@ -44,8 +45,6 @@ class Policy:
     #possActions is a list of actions that are actually choosable when suggesting
     #defaultValue is the default value for choosing each action
     def __init__(self, possActions, defaultValue = 0):
-        #dps
-       #print("New policy created! possActions is {}".format(possActions))
         self.values = {} #the dict to store the value of choosing each action
         self.possActions = possActions #a list of all the moves this policy has to keep track of
         self.defaultValue = defaultValue
@@ -99,14 +98,16 @@ class TwoPlayerPolicyPlayer:
         #...0 corresponds to the first move.
         self.curGameInfo = [None, None, []]
     
-    #TODO finish save and load functions
+    #Save the policies this player has learned
+    #The fileName should have the extension '.pkl'
     def save(self, fileName):
-        with open(fileName, 'w') as f:
-            json.dump(self.policies, f)
-            
+        with open(fileName, 'wb') as f:
+            pickle.dump(self.policies, f, pickle.HIGHEST_PROTOCOL)
+    
+    #load the policies this player has learned      
     def load(self, fileName):
-        with open(fileName, 'r') as f:
-            self.policies = json.load(f)
+        with open(fileName, 'rb') as f:
+            self.policies = pickle.load(f)
 
     #Takes the game (game), and the player number of the policy player (me)
     #Makes a move in the game based on its policies and exploreRate
@@ -212,11 +213,8 @@ class TwoPlayerPolicyPlayer:
         while pastMovesLen>0 and (not pastMovesLen+1 in exploreMoves):
             #the particular move we're updating
             move, playerNum = game.undoMove()
-            #dps
-           #print("Getting policy for game:{}, move:{} and playerNum:{}".format(game, move, playerNum))
             #the value dict of the policy we're updating
             policyValues = self.getPolicy(game).values #we will need a "myGame" here
-           #print("The policy we got was: {}".format(policyValues))
             #the previous, or 'past' value of that move
             pastVal = policyValues[move]
             #do the update
@@ -234,27 +232,104 @@ class TwoPlayerPolicyPlayer:
             
 
 if __name__ == "__main__":
-    import TicTacToeGame as tttg
-    import timeit
-    import LogicalPlayer as lp
-    import OldPolicyPlayer as opp
-    '''
-    p = PolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [0, 1, 3])
-    for i in range(3):
-        g = tttg.play(who = (p, 'random'))
-        print(g)
-        print(g.pastMoves)
-        p.update()
-    p.exploreRate = 0
-    while True:
-        tttg.play(who = (p, "human"))
-    '''
-    
-    print("Working...")
-    winnerList = []
     from TwoPlayerGame import TwoPlayerGamePlayer
     from ChopsticksGame import ChopsticksGame
     from TicTacToeGame import TicTacToeGame
+    import LogicalPlayer as lp
+    
+    '''
+    print("Working...")
+    gameClass = TicTacToeGame
+    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gameParameters =  ([], {}) #default
+    exploreRate, learningRate, rewards = (.01, .5, [-1000, 1, 10])
+    learner = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+    
+    while True:
+        gamePlayer.play(who = ('human', learner))
+        learner.update()
+    '''
+    
+    p = TwoPlayerPolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [-5000, 1, 10])
+    gameClass = TicTacToeGame
+    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gamesToPlay = 100000
+    p.load("saved.pkl")
+    for i in range(gamesToPlay):
+        useful.printPercent(i, gamesToPlay, 5, 1)
+        g = gamePlayer.play(who = (p, 'random'))
+        p.update()
+    
+    p.exploreRate = 0
+    test.testAgainstRandom(p, gameClass)
+    p.save("saved.pkl")
+    while True:
+        gamePlayer.play(who = (p, "human"))
+    
+    
+    '''
+    print("Working...")
+    gameClass = TicTacToeGame
+    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gameParameters =  ([], {}) #default
+    gamesPerRound = 10000 #default. Often overriden later.
+    printOneGamePer = 0
+    exploreRate, learningRate, rewards = (.01, .5, [-1000, 1, 10])
+    saveFile = "myPolicies.json"
+    '''
+    '''
+    if gameClass==ChopsticksGame:
+        gameParameters =  ([], {"state":None, "tieLimit":3})
+        exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])
+        gamesPerRound = 2000
+    '''
+    '''
+    p = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+    p2 = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
+    while True:
+        p.exploreRate = exploreRate
+        p2.exploreRate = exploreRate
+        for i in range(gamesPerRound):
+            useful.printPercent(i, gamesPerRound, 5, 1)
+            gamePlayer.play(who = (p, 'random'), gameParameters = gameParameters)
+            gamePlayer.play(who = (p2, 'random'), gameParameters = gameParameters)
+            p.update()
+            p2.update()
+        for i in range(gamesPerRound):
+                useful.printPercent(i, gamesPerRound, 5, 1)
+                g = gamePlayer.play(who = (p, p2), gameParameters = gameParameters)
+                p.update()
+                p2.update()
+                if printOneGamePer and i%printOneGamePer==0:
+                    print(g)
+                    print(g.pastMoves)
+    '''
+    '''          
+        #p.exploreRate = 0
+        #p2.exploreRate = 0
+        pctIncrement = 10
+        p.exploreRate = 0
+        p2.exploreRate = 0
+        test.testAgainstRandom(p, gameClass, gamesPerRound = 100, rounds = 25, comment = 0, pctIncrement = pctIncrement)
+        test.testAgainstRandom(p2, gameClass, gamesPerRound = 100, rounds = 25, comment = 0, pctIncrement = pctIncrement)
+
+        if useful.askYesOrNo("Would you like to play p?"):
+            while True:
+                gamePlayer.play(who = ('human', p), gameParameters = gameParameters)
+                if not useful.askYesOrNo("Play again?"):
+                    break
+                
+        if useful.askYesOrNo("Would you like to play p2?"):
+            while True:
+                gamePlayer.play(who = ('human', p2), gameParameters = gameParameters)
+                if not useful.askYesOrNo("Play again?"):
+                    break
+    '''
+    
+    
+    '''
+    print("Working...")
+    winnerList = []
     gameClass = TicTacToeGame
     gamePlayer = TwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
@@ -284,7 +359,7 @@ if __name__ == "__main__":
                 gamePlayer.play(who = ('human', p), gameParameters = gameParameters)
                 if not useful.askYesOrNo("Play again?"):
                     break
-    
+    '''
     #while True:
     #    tttg.play(who = ('human', p))
     '''

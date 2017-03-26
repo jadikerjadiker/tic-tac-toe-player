@@ -164,6 +164,7 @@ class TicTacToeGame(TwoPlayerGame):
                 
 if __name__=="__main__":
     from TwoPlayerGame import TwoPlayerGamePlayer
+    game = TicTacToeGame()
     gamePlayer = TwoPlayerGamePlayer(TicTacToeGame)
     while True:
         gamePlayer.play(who = ('human', 'human'))

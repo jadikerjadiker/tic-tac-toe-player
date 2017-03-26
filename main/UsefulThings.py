@@ -1,6 +1,4 @@
 import sys
-
-
 def assertPython3():   
     assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
 
@@ -22,7 +20,7 @@ def askYesOrNo(question):
         ans = input(question+" (y/n) ").lower()
         if ans in ['y', 'yes', 'yeah', 'yep']:
             return True
-        elif ans in ['n', 'no', 'nope']:
+        elif ans in ['n', 'no', 'nope', 'nah']:
             return False
         else:
             print("Answer was not 'y' or 'n'.")
@@ -37,3 +35,25 @@ def printPercent(indexNumber, outOf, incrementAmt = 1, roundAmt = 0):
     printPc = 100.0*(indexNumber+1)/outOf
     if printPc%incrementAmt<(100.0/outOf):
         print("{}%...".format(round(printPc, roundAmt)))
+        
+
+class TimeoutExpired(RuntimeError):
+    pass
+
+def alarm_handler(signum, frame):
+    raise TimeoutExpired
+
+import signal
+def timeoutInput(prompt, timeout):
+    # set signal handler
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(timeout) # produce SIGALRM in `timeout` seconds
+
+    try:
+        return input(prompt)
+    finally:
+        signal.alarm(0) # cancel alarm
+    
+if __name__ == "__main__":
+    timeoutInput("Hello ", .5)
+    
