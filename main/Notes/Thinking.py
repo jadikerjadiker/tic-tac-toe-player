@@ -276,3 +276,55 @@ http://stats.stackexchange.com/questions/247551/how-to-determine-the-confidence-
 
 Okay, so we just go with what we've got.
 '''
+
+'''
+Undated (in between the other two)
+
+So the goal here is to have
+*the policy player play a small amount of games
+*the neural net learn to predict the policy based on the game position
+*play the game based on the policy predicted by the neural net from the position
+
+The TwoPlayerGame class will have to switch from using strings to using string representations of lists of numbers with consistent lengths.
+Or, the games need to have a quick conversion between the strings for the PolicyPlayer and the consistent-lengthed lists for the neural net.
+
+I decided to go with the "quick conversion between the strings for the PolicyPlayer and the consistent-lengthed lists for the neural net"
+because it was easy for tic-tac-toe at least. Other games may need to implement their own complicated version.
+'''
+
+'''
+April 15 2017 
+
+So now we need to have the neural net train on the policy.
+What is the structure of the policy?
+Oh, a single policy is only for a single state, so we really want it to train on state-policy pairs
+So the issue with this is that sometimes the policy may be larger or smaller based on what actions are available.
+
+Just did some research, and it also seems like the easiest way to "train" a non-recurring neural net with rewards is to just train it more often on things it does right.
+
+So I could have a function complete the policy with all the possible moves in any given situation, assigning 0s to the unmentioned ones.
+Then, it will jus
+
+Hold on, may have just uncovered huge algorithm error in my policy player.
+Why doesn't it keep track of how many times it's hit an area?
+For example, if it gets 2 points for doing one thing, and 1 point for doing another,
+...and it happens to try the 1 point one 3 times before it tries the 2 point one.
+Won't it think the 1 point one is better?
+No, because it does not add: instead it goes a percentage (learningRate) closer to the reward that it most recently got.
+If it kept on getting the 1 point one, it would stay at 1 point.
+
+One thing that does bother me with the policy player is that it is only based on it's own play.
+I never tested it also learning from the random player.
+It may add more confusion because the random player will do some very bad plays.
+But it may also add some insight - I'm not sure. It's something to test later.
+
+Okay, back to my goal.
+
+This is all thinking. I'm going to move it to thinking.
+
+So now I just need to make sure the response vector is a constant length.
+For tic-tac-toe, that's pretty easy.
+Do the classes inherenly have a list of all possible actions?
+'''
+
+

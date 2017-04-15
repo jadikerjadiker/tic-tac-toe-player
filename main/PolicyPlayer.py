@@ -39,6 +39,7 @@ class NonExistantPolicy(RuntimeError):
     pass
 
 #basically just a fancy dict that stores the value of choosing each action at a particular state
+#a single policy only keeps track of possible actions in a single state
 #It can suggest values to choose and be greedy (choose its 'best' option) or
 #...have a probability of exploring (choosing a 'non-best' option)
 class Policy:
@@ -134,7 +135,7 @@ class TwoPlayerPolicyPlayer:
         game.makeMove(policy.suggest(explore = explore), me)
       
     #Given a game or string representation of a game, returns the policy for that game position
-    #If a policy for that position does not yet exist and it is given possibleMoves (a list of moves that are availible in the position),
+    #If a policy for that position does not yet exist and it is given possibleMoves (a list of moves that are available in the position),
     #...it will create (using addPolicy) a new policy and return that new policy
     #If a policy for that position does not yet exist and it is not given possibleMoves, it raises a NonExistantPolicy error
     def getPolicy(self, game, possibleMoves = None):
@@ -206,6 +207,7 @@ class TwoPlayerPolicyPlayer:
         #there's a move at the end the policy player doesn't care about    
         if not wentLast:
             game.undoMove()
+        #note that this is just setting the initial value
         updateVal = reward
         pastMovesLen = len(game.pastMoves) #cache
         #while I haven't gone through all the moves I need to and
@@ -218,7 +220,13 @@ class TwoPlayerPolicyPlayer:
             #the previous, or 'past' value of that move
             pastVal = policyValues[move]
             #do the update
+            #dps
+            print("stuff")
+            print(updateVal)
+            print(pastVal)
+            print(self.learningRate)
             updateVal = pastVal + self.learningRate*(updateVal - pastVal)
+            #update val carries on to the next update we do for this game
             policyValues[move] = updateVal
             #go to the next move
             try:
@@ -237,18 +245,20 @@ if __name__ == "__main__":
     from TicTacToeGame import TicTacToeGame
     import LogicalPlayer as lp
     
-    '''
+    
     print("Working...")
     gameClass = TicTacToeGame
     gamePlayer = TwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
-    exploreRate, learningRate, rewards = (.01, .5, [-1000, 1, 10])
+    exploreRate, learningRate, rewards = (0, 1, [1, 2, 1])
     learner = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
     
     while True:
         gamePlayer.play(who = ('human', learner))
         learner.update()
-    '''
+        for policyIndex in learner.policies:
+            print("Index: {}\nPolicy: {}".format(policyIndex, learner.policies[policyIndex]))
+    
     
     p = TwoPlayerPolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [-5000, 1, 10])
     gameClass = TicTacToeGame

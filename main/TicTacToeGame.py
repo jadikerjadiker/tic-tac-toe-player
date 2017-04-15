@@ -149,9 +149,12 @@ class TicTacToeGame(TwoPlayerGame):
             
         return ans
     
+    
+    
     @overrides
     #returns a list of the open spaces on the board
     #upgrade: might be faster as a property
+    #upgrade: can be written as a list comprehension
     def getPossibleMoves(self, playerNum = None):
         ans = []
         for i, val in enumerate(self.board):
