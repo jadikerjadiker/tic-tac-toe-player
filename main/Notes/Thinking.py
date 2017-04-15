@@ -257,3 +257,22 @@ At the same time though, I think it will be faster for me to just keep it than i
 
 So, the goal right now is to set it on solving Chopsticks, and then switch the player numbers to 0 and 1
 '''
+
+'''
+April 11 2017
+
+I think I'm going to change what I'm doing for a little bit.
+
+Originally, I thought I would teach it another game or have it learn from past learning, which I have done.
+(You can now save and load policy players and have them continue their learning)
+(I also taught it chopsticks, which it learns fairly quickly.)
+
+So now, I want to use both the neural network and policy player together, much like Google did with Alpha Go
+The neural net will train on the policy player and try to emulate it, and then play based off of those guessed policies.
+
+I wonder if there's some way to measure confidence, that way if the net is unconfident, I can use the policy player more on that instance.
+Just looked it up, and it doesn't seem like there's an easy way:
+http://stats.stackexchange.com/questions/247551/how-to-determine-the-confidence-of-a-neural-network-prediction?noredirect=1&lq=1
+
+Okay, so we just go with what we've got.
+'''

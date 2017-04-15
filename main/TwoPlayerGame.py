@@ -127,7 +127,7 @@ class TwoPlayerGamePlayer:
         gameClass = self.gameClasses[gameClassIndex]
         whoToFunction = {"random":gameClass.makeRandomMove, "human":gameClass.makeHumanMove}
         #the functions that should be called when that player wants to move
-        #TODO update: use list comprehension here
+        #update: use list comprehension here
         functions = []
         for index, player in enumerate(who):
             if isinstance(player, str):
