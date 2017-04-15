@@ -1,7 +1,7 @@
 import random
 
 '''
-TwoPlayerGame is an abstract class (with the occasional pre-implemented method)
+PPTwoPlayerGame is an abstract class (with the occasional pre-implemented method)
 ...for any two player game where the game has a state
 ...and players can make moves (represented by numbers or strings).
 If all of the methods are implemented, a PolicyPlayer can learn to play the game.
@@ -11,7 +11,7 @@ class IllegalMove(RuntimeError):
     pass
 
 #abstract class for a two player game
-class TwoPlayerGame:
+class PPTwoPlayerGame:
     def __init__(self):
         self.pastMoves = []
     
@@ -116,8 +116,8 @@ class TwoPlayerGame:
         raise NotImplementedError
 
 
-class TwoPlayerGamePlayer:
-    #gameClasses is a list of classes you want the TwoPlayerGamePlayer to be able to play.
+class PPTwoPlayerGamePlayer:
+    #gameClasses is a list of classes you want the PPTwoPlayerGamePlayer to be able to play.
     #They will be assigned the same index they have inside gameClasses
     def __init__(self, gameClasses):
         self.gameClasses = []
@@ -184,7 +184,7 @@ class TwoPlayerGamePlayer:
 if __name__ == "__main__":
     import UsefulThings as useful
     import ChopsticksGame as cg
-    gamePlayer = TwoPlayerGamePlayer(cg.ChopsticksGame)
+    gamePlayer = PPTwoPlayerGamePlayer(cg.ChopsticksGame)
     while True:
         gamePlayer.play(who = ('human', 'human'))
         if useful.askYesOrNo("Play again?"):

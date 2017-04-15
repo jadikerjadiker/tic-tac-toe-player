@@ -240,7 +240,7 @@ class TwoPlayerPolicyPlayer:
             
 
 if __name__ == "__main__":
-    from TwoPlayerGame import TwoPlayerGamePlayer
+    from PPTwoPlayerGame import PPTwoPlayerGamePlayer
     from ChopsticksGame import ChopsticksGame
     from TicTacToeGame import TicTacToeGame
     import LogicalPlayer as lp
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     
     print("Working...")
     gameClass = TicTacToeGame
-    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
     exploreRate, learningRate, rewards = (0, 1, [1, 2, 1])
     learner = TwoPlayerPolicyPlayer(exploreRate = exploreRate, learningRate = learningRate, rewards = rewards)
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     
     p = TwoPlayerPolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [-5000, 1, 10])
     gameClass = TicTacToeGame
-    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gamesToPlay = 100000
     p.load("saved.pkl")
     for i in range(gamesToPlay):
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     '''
     print("Working...")
     gameClass = TicTacToeGame
-    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
     gamesPerRound = 10000 #default. Often overriden later.
     printOneGamePer = 0
@@ -341,7 +341,7 @@ if __name__ == "__main__":
     print("Working...")
     winnerList = []
     gameClass = TicTacToeGame
-    gamePlayer = TwoPlayerGamePlayer(gameClass)
+    gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
     gamesToPlay = 10000 #default. Often overriden later.
     exploreRate, learningRate, rewards = (0, .5, [-10000, 1, 10])

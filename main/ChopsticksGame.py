@@ -1,4 +1,4 @@
-from TwoPlayerGame import TwoPlayerGame, IllegalMove
+from PPTwoPlayerGame import PPTwoPlayerGame, IllegalMove
 from copy import deepcopy
 from UsefulThings import assertPython3
 from overrides import overrides
@@ -33,14 +33,14 @@ When a player has both hands out of the game, they lose (and their opponent wins
 
 The game starts with a 1 on each hand for both players.
 '''
-class ChopsticksGame(TwoPlayerGame):
+class ChopsticksGame(PPTwoPlayerGame):
     #state is the starting stat eof the game
     #tieLimit determines when a tie game occurs
     #if a state occurs tieLimit or more times within the course of a game, the game is a tie
     def __init__(self, state = None, tieLimit = 3):
         if state is None:
             state = [[1, 1], [1, 1]] #default
-        TwoPlayerGame.__init__(self)
+        PPTwoPlayerGame.__init__(self)
         self.state = state
         self.tieLimit = tieLimit
         self.allStates = [] #used to make self.undoMove() run faster
@@ -213,8 +213,8 @@ class ChopsticksGame(TwoPlayerGame):
         return None
         
 if __name__  == "__main__":
-    from TwoPlayerGame import TwoPlayerGamePlayer
-    gamePlayer = TwoPlayerGamePlayer(ChopsticksGame)
+    from PPTwoPlayerGame import PPTwoPlayerGamePlayer
+    gamePlayer = PPTwoPlayerGamePlayer(ChopsticksGame)
     while True:
         gamePlayer.play(who = ('human', 'human'))
     

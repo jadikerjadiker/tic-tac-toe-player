@@ -1,15 +1,15 @@
 import random
 import UsefulThings as useful
-from TwoPlayerGame import IllegalMove, TwoPlayerGame
+from PPTwoPlayerGame import IllegalMove, PPTwoPlayerGame
 from overrides import overrides
 useful.assertPython3()
 
 '''
 A class that allows for the simulation and playing of a tic-tac-toe game
 '''
-class TicTacToeGame(TwoPlayerGame):
+class TicTacToeGame(PPTwoPlayerGame):
     @classmethod
-    #just a slightly faster method than TwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
+    #just a slightly faster method than PPTwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
     #often times random games are used for training so we want this to be fast.
     def makeRandomGame(Cls):
         game = Cls()
@@ -38,7 +38,7 @@ class TicTacToeGame(TwoPlayerGame):
                 print("That didn't seem to work.")
     
     def __init__(self):
-        TwoPlayerGame.__init__(self)
+        PPTwoPlayerGame.__init__(self)
         #-1 is an empty slot on the board
         #0 is a player, and 1 is the other player.
         self.board = [-1]*9
@@ -173,9 +173,9 @@ class TicTacToeGame(TwoPlayerGame):
     
                 
 if __name__=="__main__":
-    from TwoPlayerGame import TwoPlayerGamePlayer
+    from PPTwoPlayerGame import PPTwoPlayerGamePlayer
     game = TicTacToeGame()
-    gamePlayer = TwoPlayerGamePlayer(TicTacToeGame)
+    gamePlayer = PPTwoPlayerGamePlayer(TicTacToeGame)
     for i in range(4):
         game = TicTacToeGame.makeRandomGame()
         s = game.convertToStr()
