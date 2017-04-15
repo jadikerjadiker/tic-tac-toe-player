@@ -54,6 +54,20 @@ class TwoPlayerGame:
     #This is completely separate from __str__()
     def convertToStr(self):
         raise NotImplementedError
+     
+    #Much like convertToStr except
+    #instead of converting into a string, you convert into a constant-sized list
+    #Constant-sized means that this function must always return a list of the same size
+    def convertToConstLenList(self):
+        raise NotImplementedError
+     
+    #Needed in order to have a NeuralNet learn from a PolicyPlayer
+    #Converts the string returned by convertToStr into a unique list with a constant length
+    #By constant length, I mean that the length of the list returned by this function
+    #must always be the same, regardless of the input.
+    def strToConstLenList(self, string):
+        raise NotImplementedError
+    
     
     #Returns a list of possible moves that one could make, given the current game position
     #Each move needs to be a string or a number 

@@ -15,7 +15,7 @@ class TicTacToeGame(TwoPlayerGame):
         game = Cls()
         playerNum = 0
         while game.whoWon()==None:
-            game.makeRandomMove(playerNum)
+            Cls.makeRandomMove(game, playerNum)
             playerNum = Cls.getOtherPlayerNum(playerNum)
         return game
     
@@ -70,9 +70,16 @@ class TicTacToeGame(TwoPlayerGame):
     def convertToStr(self):
         ans = ""
         for value in self.board:
-            ans+=str(value)
+            #the space at the end takes up a little more space,
+            #but allows strToConstLenList to go faster
+            ans+=str(value)+" "
         return ans
         
+    @overrides
+    #The strings are always a string of integers, so this should just turn it into a list.
+    def strToConstLenList(self, string):
+        return [int(num) for num in string.split()]
+    
     @overrides
     def makeMove(self, where, playerNum):
         assert playerNum==0 or playerNum==1, "Players can only play 0 or 1, not '{}'".format(playerNum)
@@ -166,6 +173,14 @@ if __name__=="__main__":
     from TwoPlayerGame import TwoPlayerGamePlayer
     game = TicTacToeGame()
     gamePlayer = TwoPlayerGamePlayer(TicTacToeGame)
+    for i in range(4):
+        game = TicTacToeGame.makeRandomGame()
+        s = game.convertToStr()
+        print("s: {}".format(s))
+        print("back: {}".format(game.strToConstLenList(s)))
     while True:
         gamePlayer.play(who = ('human', 'human'))
+        s = game.convertToStr()
+        print("s: {}".format(s))
+        print("back: {}".format(game.strToConstLenList(s)))
     
