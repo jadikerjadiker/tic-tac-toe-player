@@ -221,10 +221,10 @@ class TwoPlayerPolicyPlayer:
             pastVal = policyValues[move]
             #do the update
             #dps
-            print("stuff")
-            print(updateVal)
-            print(pastVal)
-            print(self.learningRate)
+            #print("stuff")
+            #print(updateVal)
+            #print(pastVal)
+            #print(self.learningRate)
             updateVal = pastVal + self.learningRate*(updateVal - pastVal)
             #update val carries on to the next update we do for this game
             policyValues[move] = updateVal
@@ -242,11 +242,14 @@ class TwoPlayerPolicyPlayer:
 if __name__ == "__main__":
     from PPTwoPlayerGame import PPTwoPlayerGamePlayer
     from ChopsticksGame import ChopsticksGame
+    from ChopsticksOverAndOutGame import ChopsticksOverAndOutGame
     from TicTacToeGame import TicTacToeGame
     import LogicalPlayer as lp
     
     
     print("Working...")
+    
+    '''
     gameClass = TicTacToeGame
     gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gameParameters =  ([], {}) #default
@@ -260,11 +263,13 @@ if __name__ == "__main__":
             print("Index: {}\nPolicy: {}".format(policyIndex, learner.policies[policyIndex]))
     
     
-    p = TwoPlayerPolicyPlayer(exploreRate = .5, learningRate = .5, rewards = [-5000, 1, 10])
-    gameClass = TicTacToeGame
+    '''
+    
+    p = TwoPlayerPolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [-5000, 1, 10])
+    gameClass = ChopsticksOverAndOutGame
     gamePlayer = PPTwoPlayerGamePlayer(gameClass)
-    gamesToPlay = 100000
-    p.load("saved.pkl")
+    gamesToPlay = 10000
+    #p.load("saved.pkl")
     for i in range(gamesToPlay):
         useful.printPercent(i, gamesToPlay, 5, 1)
         g = gamePlayer.play(who = (p, 'random'))
@@ -272,7 +277,7 @@ if __name__ == "__main__":
     
     p.exploreRate = 0
     test.testAgainstRandom(p, gameClass)
-    p.save("saved.pkl")
+    #p.save("saved.pkl")
     while True:
         gamePlayer.play(who = (p, "human"))
     

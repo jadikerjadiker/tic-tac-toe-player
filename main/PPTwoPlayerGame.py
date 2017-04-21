@@ -4,7 +4,7 @@ import random
 PPTwoPlayerGame is an abstract class (with the occasional pre-implemented method)
 ...for any two player game where the game has a state
 ...and players can make moves (represented by numbers or strings).
-If all of the methods are implemented, a PolicyPlayer can learn to play the game.
+If all of the methods are implemented, a Player can learn to play the game.
 '''
 
 class IllegalMove(RuntimeError):
@@ -60,14 +60,6 @@ class PPTwoPlayerGame:
     #Constant-sized means that this function must always return a list of the same size
     def convertToConstLenList(self):
         raise NotImplementedError
-     
-    #Needed in order to have a NeuralNet learn from a PolicyPlayer
-    #Converts the string returned by convertToStr into a unique list with a constant length
-    #By constant length, I mean that the length of the list returned by this function
-    #must always be the same, regardless of the input.
-    def strToConstLenList(self, string):
-        raise NotImplementedError
-    
     
     #Returns a list of possible moves that one could make, given the current game position
     #Each move needs to be a string or a number 

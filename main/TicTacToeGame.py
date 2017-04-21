@@ -1,13 +1,14 @@
 import random
 import UsefulThings as useful
 from PPTwoPlayerGame import IllegalMove, PPTwoPlayerGame
+from PPWithNNTwoPlayerGame import PPWithNNTwoPlayerGame
 from overrides import overrides
 useful.assertPython3()
 
 '''
 A class that allows for the simulation and playing of a tic-tac-toe game
 '''
-class TicTacToeGame(PPTwoPlayerGame):
+class TicTacToeGame(PPWithNNTwoPlayerGame):
     @classmethod
     #just a slightly faster method than PPTwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
     #often times random games are used for training so we want this to be fast.
