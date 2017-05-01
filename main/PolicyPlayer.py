@@ -8,8 +8,8 @@ import pickle
 
 #TODO delete all the commented-out print statements
 
+useful.assertPython3()
 
-assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
 '''
 Policy Player
 
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     '''
     
     p = TwoPlayerPolicyPlayer(exploreRate = 0, learningRate = .5, rewards = [-5000, 1, 10])
-    gameClass = ChopsticksOverAndOutGame
+    gameClass = ChopsticksGame
     gamePlayer = PPTwoPlayerGamePlayer(gameClass)
     gamesToPlay = 10000
     #p.load("saved.pkl")

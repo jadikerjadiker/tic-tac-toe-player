@@ -1,16 +1,5 @@
 import random
 
-
-#TODO make sure I can delete PPTwoPlayerGame after this, and if so, then delete it.
-#basic super class for game players
-#these are players who actually make moves in the game and (potentially) learn from the games
-class TwoPlayerGamePlayer():
-    def makeMove(self):
-        raise NotImplementedError
-        
-    def update(self):
-        raise NotImplementedError
-
 #used to actually run a game between two different players    
 class TwoPlayerGameRunner():
     #gameClasses is a list of subclasses of Game that you want to be able to run.

@@ -14,7 +14,7 @@ def testAgainstRandom(player, game, rounds = 50, gamesPerRound = 1000, gameParam
                 if playerNum==0:
                     player.makeMove(game, 0)
                 else: #player==1
-                    gameClass.makeRandomMove(game, 1)
+                    game.makeRandomMove(1)
                 playerNum = gameClass.getOtherPlayerNum(playerNum)
             
             #convert the whoWon() value (-1 for tie, 0 for test player win, 1 for test player loss)

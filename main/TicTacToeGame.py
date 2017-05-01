@@ -16,8 +16,8 @@ class TicTacToeGame(PPWithNNTwoPlayerGame):
         game = Cls()
         playerNum = 0
         while game.whoWon()==None:
-            Cls.makeRandomMove(game, playerNum)
-            playerNum = Cls.getOtherPlayerNum(playerNum)
+            game.makeRandomMove(playerNum)
+            playerNum = game.getOtherPlayerNum(playerNum)
         return game
     
     #The decorators must be in this order or it won't work.   

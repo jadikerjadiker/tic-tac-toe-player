@@ -456,7 +456,7 @@ def testAgainstRandom(net, games = 100, comment = False):
             if player==1:
                 net.makeMove(game, 1)
             else: #player==-1
-                tttg.makeRandomMove(game, -1)
+                game.makeRandomMove(-1)
             player*=-1
             
         results[game.whoWon()+1]+=1

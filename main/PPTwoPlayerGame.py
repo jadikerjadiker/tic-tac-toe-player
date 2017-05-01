@@ -1,4 +1,6 @@
 import random
+from TwoPlayerGame import TwoPlayerGame
+from TwoPlayerGameRunner import TwoPlayerGameRunner
 
 '''
 PPTwoPlayerGame is an abstract class (with the occasional pre-implemented method)
@@ -11,8 +13,9 @@ class IllegalMove(RuntimeError):
     pass
 
 #abstract class for a two player game
-class PPTwoPlayerGame:
+class PPTwoPlayerGame(TwoPlayerGame):
     def __init__(self):
+        TwoPlayerGame.__init__(self)
         self.pastMoves = []
     
     #Get the number of the other player in the game (1 or 0 respectively)
@@ -20,14 +23,13 @@ class PPTwoPlayerGame:
         return (playerNum+1)%2
     
     #Make a random move in the game
-    def makeRandomMove(self,  playerNum):
+    def makeRandomMove(self, playerNum):
         self.makeMove(random.choice(self.getPossibleMoves(playerNum = playerNum)), playerNum)
     
     #Interface for a human to make a move in the game.
     #This is usually overriden in the subclass
-    @staticmethod
-    def makeHumanMove(game, playerNum):
-        print("Your options are: {}".format(game.getPossibleMoves(playerNum = playerNum)))
+    def makeHumanMove(self, playerNum):
+        print("Your options are: {}".format(self.getPossibleMoves(playerNum = playerNum)))
         while True:
             try:
                 playerMove = input("Where would you like to go? ")
@@ -35,7 +37,7 @@ class PPTwoPlayerGame:
                     playerMove = int(playerMove)
                 except ValueError: #if the string can't be converted to an int
                     pass
-                game.makeMove(playerMove, playerNum)
+                self.makeMove(playerMove, playerNum)
                 break #the move was successful, so break out of the while loop and return
             except:
                 print("That didn't seem to work.")
@@ -111,9 +113,9 @@ class PPTwoPlayerGame:
 if __name__ == "__main__":
     import UsefulThings as useful
     import ChopsticksGame as cg
-    gamePlayer = PPTwoPlayerGamePlayer(cg.ChopsticksGame)
+    gamePlayer = TwoPlayerGameRunner(cg.ChopsticksGame)
     while True:
         gamePlayer.play(who = ('human', 'human'))
-        if useful.askYesOrNo("Play again?"):
+        if not useful.askYesOrNo("Play again?"):
             break
     

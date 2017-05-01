@@ -1,5 +1,5 @@
 #a very basic game class
-class Game():
+class TwoPlayerGame():
     #TODO change all these to Google-style docstrings
     """
     Determine who has won the game
@@ -28,12 +28,10 @@ class Game():
     def getPossibleMoves(self, playerNum):
         raise NotImplementedError
     
-    #TODO this used to be static
     #run an interface to allow a human to make a move in the game
     def makeHumanMove(self, playerNum):
         raise NotImplementedError
     
-    #TODO this used to be static
     #make a random move in the game
     def makeRandomMove(self, playerNum):
         raise NotImplementedError
