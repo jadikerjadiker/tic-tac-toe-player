@@ -1,4 +1,3 @@
-from PPTwoPlayerGame import PPTwoPlayerGamePlayer
 import random
 import UsefulThings as useful
 
