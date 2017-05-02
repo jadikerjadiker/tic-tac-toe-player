@@ -78,7 +78,7 @@ class TicTacToeGame(PPWithNNTwoPlayerGame):
         
     @overrides
     #The strings are always a string of integers, so this should just turn it into a list.
-    def strToConstLenList(self, string):
+    def strToNNInput(self, string):
         return [int(num) for num in string.split()]
     
     @overrides

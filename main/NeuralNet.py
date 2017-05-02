@@ -82,6 +82,7 @@ class NeuralNet:
     #The net will continue to train on the entire batch until the error is low enough or it has trained enough times (depending on the mode)
     #TODO use normal expressions like '-' and '+' when possible
     #TODO add in checkers to make sure it won't train forever in a loop
+    #TODO add in early stopping method that stops training once progress has slowed down
     def train(self, batches, learningRate = None, mode = None, trainAway = False, comment = False):
         if learningRate==None:
             learningRate = self.learningRate

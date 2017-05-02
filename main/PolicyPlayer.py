@@ -4,8 +4,6 @@ import Testers as test
 import pickle
 from Policy import UncreatablePolicy, NonExistantPolicy, Policy
 
-#TODO delete all the commented-out print statements
-
 useful.assertPython3()
 
 '''
@@ -35,7 +33,7 @@ class PolicyPlayer:
         if rewards is None:
             rewards = [0, 1, 1] #default
         self.rewards = rewards #reward for [loss, tie, win]
-        self.policies = {}
+        self.policies = {} #{stringRepresentingGame: policyForGame, ...}
         self.exploreRate = exploreRate
         self.learningRate = learningRate
         self.defaultPolicyValue = defaultPolicyValue
@@ -127,7 +125,6 @@ class PolicyPlayer:
         if gameInfo is None:
             gameInfo = self.curGameInfo
         game, me, exploreMoves = gameInfo
-       #print("Game, me, exploreMoves: {}, {}, {}".format(game, me, exploreMoves))
         winner = game.whoWon()
         wentLast = (game.pastMoves[-1][1] == me) #whether or not I made the last move in the game
         rewardIndex = 0 #index to get value from self.rewards, default to loss
@@ -165,11 +162,6 @@ class PolicyPlayer:
             #the previous, or 'past' value of that move
             pastVal = policyValues[move]
             #do the update
-            #dps
-            #print("stuff")
-            #print(updateVal)
-            #print(pastVal)
-            #print(self.learningRate)
             updateVal = pastVal + self.learningRate*(updateVal - pastVal)
             #update val carries on to the next update we do for this game
             policyValues[move] = updateVal

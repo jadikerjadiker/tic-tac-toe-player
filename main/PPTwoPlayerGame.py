@@ -15,7 +15,6 @@ class IllegalMove(RuntimeError):
 #abstract class for a two player game
 class PPTwoPlayerGame(TwoPlayerGame):
     def __init__(self):
-        TwoPlayerGame.__init__(self)
         self.pastMoves = []
     
     #Get the number of the other player in the game (1 or 0 respectively)
