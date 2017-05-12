@@ -6,7 +6,7 @@ A player that will always win when it has the option
 and will always block the opponent when it has the option.
 Otherwise, it does a random move
 '''
-class LogicalPlayer:
+class LogicalTicTacToePlayer:
     #get the logical players move
     def getMove(self, game, me):
         moveToBlock = -1

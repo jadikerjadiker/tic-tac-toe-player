@@ -34,8 +34,8 @@ When a player has both hands out of the game, they lose (and their opponent wins
 The game starts with a 1 on each hand for both players.
 '''
 class ChopsticksGame(PPWithNNTwoPlayerGame):
-    allMoves = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    inputLen = 9
+    allMoves = [1, 2, 3, 4, 5]
+    inputLen = len(allMoves)
     outputLen = 9
     
     #state is the starting stat eof the game
@@ -117,11 +117,12 @@ class ChopsticksGame(PPWithNNTwoPlayerGame):
        
     @overrides
     def getPossibleMoves(self, playerNum):
-        allMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
+        #just hard-coded it so it runs faster
+        potentialMoves = {1:True, 2:True, 3:True, 4:True, 5:True}
         def removeMoves(*numbers):
             for number in numbers:
                 try:
-                    del allMoves[number]
+                    del potentialMoves[number]
                 except KeyError: #it's already been deleted
                     pass
 
@@ -146,12 +147,12 @@ class ChopsticksGame(PPWithNNTwoPlayerGame):
         #if the player can't split
         if not(testSplit and self.canSplit(player = player)):
             #this won't have been deleted before, so I don't have to run removeMoves(5); I can just delete it.
-            del allMoves[5] 
+            del potentialMoves[5] 
         
         #it should return a list, not a dictionary, so create the list and copy
         #the indicies from the dictionary that are still there
         ans = []  
-        for move in allMoves:
+        for move in potentialMoves:
             ans.append(move)
             
         return ans

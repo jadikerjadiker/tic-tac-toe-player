@@ -327,4 +327,21 @@ For tic-tac-toe, that's pretty easy.
 Do the classes inherenly have a list of all possible actions?
 '''
 
+'''
+May 4 2017
+
+Teying to figure out how to get it so that my classes force me to override stuff.
+I have a class property for one of my classes
+
+class AbstractFoo():
+    classProperty = 0
+    
+but I want other classes to be forced to override it.
+'''
+
+'''
+May 12
+
+Finally figured out how metaclasses work and such and made ABCAMeta to fix it.
+'''
 

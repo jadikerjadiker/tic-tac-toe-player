@@ -16,7 +16,7 @@ class Policy:
     #defaultValue is the default value for choosing each action
     def __init__(self, possActions, defaultValue = 0):
         self.values = {} #the dict to store the value of choosing each action
-        self.possActions = possActions #a list of all the moves this policy has to keep track of
+        self.possActions = possActions #a list of all the actions/moves this policy has to keep track of
         self.defaultValue = defaultValue
         for action in possActions:
             self.values[action] = self.defaultValue
@@ -24,6 +24,14 @@ class Policy:
     
     def __str__(self):
         return str(self.values)
+    
+    #getter for self.values[action]
+    def getValueForAction(self, action):
+        return self.values[action]
+        
+    #getter for possActions
+    def getAllActions(self):
+        return self.possActions
     
     #If explore is false, return the greedy (highest) value in this policy
     #If explore is true, choose a random value that's not the greedy one
@@ -43,7 +51,6 @@ class Policy:
                 pass
         #choose a random action
         return random.choice(greedyActions)
-        
     
     #the formula used is
     #old = old+learningRate*(target-old)

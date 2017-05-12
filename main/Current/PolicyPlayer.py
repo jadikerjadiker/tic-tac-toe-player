@@ -2,7 +2,7 @@ import random
 import UsefulThings as useful
 import Testers as test
 import pickle
-from Policy import UncreatablePolicy, NonExistantPolicy, Policy
+from Policy import Policy, UncreatablePolicy, NonExistantPolicy
 
 useful.assertPython3()
 
@@ -33,7 +33,7 @@ class PolicyPlayer:
         if rewards is None:
             rewards = [0, 1, 1] #default
         self.rewards = rewards #reward for [loss, tie, win]
-        self.policies = {} #{stringRepresentingGame: policyForGame, ...}
+        self.policies = {} #{stringRepresentingGame: PolicyForGame, ...}
         self.exploreRate = exploreRate
         self.learningRate = learningRate
         self.defaultPolicyValue = defaultPolicyValue

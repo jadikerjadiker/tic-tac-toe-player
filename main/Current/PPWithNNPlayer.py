@@ -3,6 +3,9 @@ from TwoPlayerGamePlayer import TwoPlayerGamePlayer
 from NeuralNet import NeuralNet
 from overrides import overrides
 
+#TODO del import
+from UsefulThings import printAndReturn
+
 '''
 The goal of this class is to have a computer that uses reinforcement learning in
 ...order to understand best strategies to win the game, and uses
@@ -73,10 +76,28 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
             [(convertPPKeyToNN(key), convertPPValueToNN(value)) for (key, value) in policies.items]
             Then, that becomes the dataset
             '''
-            def printAndRet(thing):
-                print(thing)
-                return thing
-            test = [(printAndRet(key), printAndRet(value)) for (key, value) in self.policyPlayer.policies.items()]
+            #the key is the string representing a game position
+            def convertPPToNNInput(key):
+                #returns a constant-lengthed list of numbers
+                return gameClass.strToNNInput(key)
+            
+            #convert a Policy into a target for a NeuralNet
+            #defaultReward is the target output used for actions
+            #that are not available to the player in the given situation.
+            def convertPPToNNOutput(defaultReward, policy):
+                #assume no actions are possible
+                ans = [defaultReward]*len(self.gameClass.allMoves)
+                
+                #for each action that is possible, update its value
+                for action in policy.getAllActions():
+                    index = self.gameClass.allMoves.index(action) #find the index for ans
+                    ans[index] = policy.getValueForAction(action) #set the value to be what the policy player determined
+                    
+                return ans
+
+           
+            dataset = [(printAndReturn(convertPPToNNInput(gameString)), printAndReturn(convertPPToNNOutput(policy)))\
+                for (gameString, policy) in self.policyPlayer.policies.items()]
             
             #**kwargs is passed to neural net for training parameters
             self.neuralNet.train(dataset, **kwargs)
