@@ -35,14 +35,23 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
         except KeyError: #no architecture specified
             raise RuntimeError("Need to specify an (internal neural net) architecture when creating PPWithNNPlayer")
         architecture.append(gameClass.outputLen) #last layer (output) must be the correct amount for the game
-            
+        
+        for reward in policyPlayerInfo.get("rewards", []):
+            #The neural net can't output anything outside of the range 0 inclusive to 1 inclusive.
+            #So if any of the rewards are out of this range, that will cause an issue.
+            #If none of the rewards are out of this range, it won't be an issue because the policy player doesn't accumulate rewards.
+            self.checkReward(reward)
         self.policyPlayer = PolicyPlayer(**policyPlayerInfo)
         self.neuralNet = NeuralNet(architecture, **neuralNetInfo)
         
         #if @training is True, then makeMove will cause the policy player to train on the data
         #if @training is False, then makeMove will have the neural net predict make the move
         self.training = True
-        
+    
+    def checkReward(self, reward):
+        if reward>1 or reward<0:
+                raise ValueError("Reward of {} is not in between 0 and 1".format(reward))
+     
     @overrides
     def makeMove(self, *args, **kwargs):
         if self.training:
@@ -54,9 +63,9 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
     
     @overrides
     def update(self, *args, **kwargs):
-        if self.training:
+        if self.training: #learning how to play the game
             self.policyPlayer.update(*args, **kwargs)
-        else:
+        else: #generalizing what I've learned
             #the next bit of code converts the policy player into a dataset
             '''
             TODO delete thinking
@@ -95,10 +104,16 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
                     
                 return ans
 
-           
-            dataset = [(printAndReturn(convertPPToNNInput(gameString)), printAndReturn(convertPPToNNOutput(policy)))\
-                for (gameString, policy) in self.policyPlayer.policies.items()]
+            #The reward for trying to make a move that can't be made
+            defaultReward = kwargs.get("defaultReward", 0)
+            self.checkReward(defaultReward)
+            batch = [(printAndReturn(convertPPToNNInput(gameString)), printAndReturn(convertPPToNNOutput(defaultReward, policy))) for (gameString, policy) in self.policyPlayer.policies.items()]
+            dataset = [batch]
+            print("dataset")
+            print(dataset)
             
+            print("architecture")
+            print(self.neuralNet.architecture)
             #**kwargs is passed to neural net for training parameters
             self.neuralNet.train(dataset, **kwargs)
         
@@ -110,13 +125,14 @@ if __name__ == "__main__":
     import Testers as test
     from ChopsticksOverAndOutGame import ChopsticksOverAndOutGame
     from TicTacToeGame import TicTacToeGame
-    import LogicalPlayer as lp
     
     #TODO finish
     
-    policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[-5000, 1, 10]}
-    neuralNetInfo = {"architecture":[10, 10]}
-    gameClass = ChopsticksGame
+    policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
+    neuralNetInfo = {"architecture":[9, 9], "learningRate":.01}
+    neuralNetTrainingInfo = {"mode":("avg", .1), "comment":2}
+    
+    gameClass = TicTacToeGame
     gameRunner = TwoPlayerGameRunner(gameClass)
     gamesToPlay = 100
     p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
@@ -127,7 +143,9 @@ if __name__ == "__main__":
         p.update()
     
     p.training = False
-    p.update()
+    #learningRate = None, mode = None, trainAway = False, comment = False
+    print("About to update")
+    p.update(**neuralNetTrainingInfo)
     '''
     test.testAgainstRandom(p, gameClass, )
     #p.save("saved.pkl")

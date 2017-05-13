@@ -13,6 +13,10 @@ class TicTacToeGame(PPWithNNTwoPlayerGame):
     inputLen = 9
     outputLen = 9
     
+    @classmethod
+    #The strings are always a string of integers, so this should just turn it into a list.
+    def strToNNInput(Cls, string):
+        return [int(num) for num in string.split()]
     
     @classmethod
     #just a slightly faster method than PPTwoPlayerGamePlayer(TicTacToeGame).play(who = ('random', 'random'))
@@ -80,11 +84,6 @@ class TicTacToeGame(PPWithNNTwoPlayerGame):
             #but allows strToConstLenList to go faster
             ans+=str(value)+" "
         return ans
-        
-    @overrides
-    #The strings are always a string of integers, so this should just turn it into a list.
-    def strToNNInput(self, string):
-        return [int(num) for num in string.split()]
     
     @overrides
     def makeMove(self, where, playerNum):

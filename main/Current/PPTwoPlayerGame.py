@@ -8,7 +8,7 @@ PPTwoPlayerGame is an abstract class (with the occasional pre-implemented method
 ...and players can make moves (represented by numbers or strings).
 If all of the methods are implemented, a Player can learn to play the game.
 '''
-
+#TODO decide if I'm going to do NotImplementedError or ABCMeta and stick with it for all classes
 class IllegalMove(RuntimeError):
     pass
 

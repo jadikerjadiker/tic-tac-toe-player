@@ -3,7 +3,7 @@ def assertPython3():
     assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
 
 def printAndReturn(val):
-    #print(val)
+    print(val)
     return val
 
 def askYesOrNo(question):

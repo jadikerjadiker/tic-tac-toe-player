@@ -38,6 +38,10 @@ class ChopsticksGame(PPWithNNTwoPlayerGame):
     inputLen = len(allMoves)
     outputLen = 9
     
+    @classmethod
+    def strToNNInput():
+        raise NotImplementedError #TODO implement
+    
     #state is the starting stat eof the game
     #tieLimit determines when a tie game occurs
     #if a state occurs tieLimit or more times within the course of a game, the game is a tie

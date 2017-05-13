@@ -23,18 +23,15 @@ class PPWithNNTwoPlayerGame(PPTwoPlayerGame, metaclass=ABCAMeta):
     #len(allMoves)
     requiredAttributes.append("outputLen") 
     
-    @classmethod
-    @abstractmethod
-    def allMoves(self):
-        """a list of all the possible moves that can ever be done in the game no matter the situation
-        this is needed because the neural net always needs to have all options available in order to generalize/learn
-        self.getPossibleMoves() (defined in the super class) may only return a list of elements contained in this list
-        """
-    
+    """a list of all the possible moves that can ever be done in the game no matter the situation
+    this is needed because the neural net always needs to have all options available in order to generalize/learn
+    self.getPossibleMoves() (defined in the super class) may only return a list of elements contained in this list
+    """
+    requiredAttributes.append("allMoves")
     
     @classmethod #this must go before the abstractmethod
     @abstractmethod
-    def strToNNInput(self, string):
+    def strToNNInput(string):
         """Converts the string returned by convertToStr into a neural network input
         Returns a list with a consistent length that only contains numbers
         Consistent length means that the length of the list is always the same, regardless of the input.

@@ -31,7 +31,7 @@ Remember, the policy player only changes the probabilities up through its last
 class PolicyPlayer:
     def __init__(self, exploreRate = 0, learningRate = 1, rewards = None, defaultPolicyValue = .5):
         if rewards is None:
-            rewards = [0, 1, 1] #default
+            rewards = [0, .5, 1] #default
         self.rewards = rewards #reward for [loss, tie, win]
         self.policies = {} #{stringRepresentingGame: PolicyForGame, ...}
         self.exploreRate = exploreRate
