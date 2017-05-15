@@ -2,6 +2,7 @@ from PolicyPlayer import PolicyPlayer
 from TwoPlayerGamePlayer import TwoPlayerGamePlayer
 from NeuralNet import NeuralNet
 from overrides import overrides
+import copy
 
 #TODO del import
 from UsefulThings import printAndReturn
@@ -30,8 +31,9 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
         self.gameClass = gameClass
         #the architecture of the neural net; how many neurons are in each layer
         architecture = [gameClass.inputLen] #first layer (input) must be the correct amount for the game
+        myNeuralNetInfo = copy.deepcopy(neuralNetInfo) #copy it into a new dict since we're going to be editing it
         try:
-            architecture.extend(neuralNetInfo.pop("architecture"))
+            architecture.extend(myNeuralNetInfo.pop("architecture"))
         except KeyError: #no architecture specified
             raise RuntimeError("Need to specify an (internal neural net) architecture when creating PPWithNNPlayer")
         architecture.append(gameClass.outputLen) #last layer (output) must be the correct amount for the game
@@ -42,7 +44,7 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
             #If none of the rewards are out of this range, it won't be an issue because the policy player doesn't accumulate rewards.
             self.checkReward(reward)
         self.policyPlayer = PolicyPlayer(**policyPlayerInfo)
-        self.neuralNet = NeuralNet(architecture, **neuralNetInfo)
+        self.neuralNet = NeuralNet(architecture, **myNeuralNetInfo)
         
         #if @training is True, then makeMove will cause the policy player to train on the data
         #if @training is False, then makeMove will have the neural net predict make the move
@@ -53,14 +55,34 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
                 raise ValueError("Reward of {} is not in between 0 and 1".format(reward))
      
     @overrides
-    def makeMove(self, *args, **kwargs):
+    def makeMove(self, game, playerNum):
         if self.training:
-            self.policyPlayer.makeMove(*args, **kwargs)
+            self.policyPlayer.makeMove(game, playerNum)
         else:
-            #TODO have the neural net make a move
-            self.policyPlayer.exploreRate = 0
-            self.policyPlayer.makeMove(*args, **kwargs)
-    
+            inpt = game.strToNNInput(game.convertToStr())
+            output = self.neuralNet.run(inpt)
+            #TODO make this faster
+            '''
+            create list of indexes by value
+            go through and use the first index that is a possible move
+            '''
+            #dp
+            #print(output)
+            #create a list of indexes into output sorted from lowest to highest values in output
+            choiceIndexes = sorted(list(range(len(output))), key=lambda x: -output[x])
+            #dp
+            #print(choiceIndexes)
+            
+            allMoves = game.allMoves
+            possibleMoves = game.getPossibleMoves()
+            
+            for choiceIndex in choiceIndexes:
+                if allMoves[choiceIndex] in possibleMoves: #make sure move is possible
+                    game.makeMove(allMoves[choiceIndex], playerNum)
+                    return
+                    
+            raise RuntimeError("No possible moves found in game {} for player {}".format(game, playerNum))
+            
     @overrides
     def update(self, *args, **kwargs):
         if self.training: #learning how to play the game
@@ -107,13 +129,9 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
             #The reward for trying to make a move that can't be made
             defaultReward = kwargs.get("defaultReward", 0)
             self.checkReward(defaultReward)
-            batch = [(printAndReturn(convertPPToNNInput(gameString)), printAndReturn(convertPPToNNOutput(defaultReward, policy))) for (gameString, policy) in self.policyPlayer.policies.items()]
+            batch = [(convertPPToNNInput(gameString), convertPPToNNOutput(defaultReward, policy)) for (gameString, policy) in self.policyPlayer.policies.items()]
             dataset = [batch]
-            print("dataset")
-            print(dataset)
             
-            print("architecture")
-            print(self.neuralNet.architecture)
             #**kwargs is passed to neural net for training parameters
             self.neuralNet.train(dataset, **kwargs)
         
@@ -129,23 +147,29 @@ if __name__ == "__main__":
     #TODO finish
     
     policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
-    neuralNetInfo = {"architecture":[9, 9], "learningRate":.01}
-    neuralNetTrainingInfo = {"mode":("avg", .1), "comment":2}
+    neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
+    neuralNetTrainingInfo = {"mode":("avg", .2), "comment":0}
     
     gameClass = TicTacToeGame
     gameRunner = TwoPlayerGameRunner(gameClass)
-    gamesToPlay = 100
-    p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
-    #p.load("saved.pkl")
-    for i in range(gamesToPlay):
-        useful.printPercent(i, gamesToPlay, 5, 1)
-        g = gameRunner.play(who = (p, 'random'))
-        p.update()
+    gamesToPlay = 200
     
-    p.training = False
-    #learningRate = None, mode = None, trainAway = False, comment = False
-    print("About to update")
-    p.update(**neuralNetTrainingInfo)
+    for i in range(50):
+        p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
+        for i in range(gamesToPlay):
+            #useful.printPercent(i, gamesToPlay, 5, 1)
+            g = gameRunner.play(who = (p, 'random'))
+            p.update()
+        
+        p.training = False
+        #learningRate = None, mode = None, trainAway = False, comment = False
+        #print("About to update")
+        p.update(**neuralNetTrainingInfo)
+        #print("About to test against PolicyPlayer")
+        res = test.testAgainst(p, p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+        print("Averages: {}".format(res[3]))
+    while True:
+        gameRunner.play(who = (p, "human"))
     '''
     test.testAgainstRandom(p, gameClass, )
     #p.save("saved.pkl")

@@ -36,6 +36,8 @@ class PPWithNNTwoPlayerGame(PPTwoPlayerGame, metaclass=ABCAMeta):
         Returns a list with a consistent length that only contains numbers
         Consistent length means that the length of the list is always the same, regardless of the input.
         """
+        
+    #TODO see if you should put gameToNNInput in
     
     def __init__(self):
         PPTwoPlayerGame.__init__(self)

@@ -1,4 +1,5 @@
 import sys
+import warnings
 def assertPython3():   
     assert sys.version_info[0] >= 3, "Python version needs to be at least 3"
 
@@ -35,7 +36,15 @@ def printPercent(indexNumber, outOf, incrementAmt = 1, roundAmt = 0):
     printPc = 100.0*(indexNumber+1)/outOf
     if printPc%incrementAmt<(100.0/outOf):
         print("{}%...".format(round(printPc, roundAmt)))
+   
+#decorator to supress warnings on a function     
+def suppressWarnings(func):
+    def wrapper(*args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            func(*args, **kwargs)
         
+    return wrapper
 
 class TimeoutExpired(RuntimeError):
     pass

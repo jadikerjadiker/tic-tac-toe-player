@@ -1,22 +1,31 @@
 import numpy as np
 import math #for e^x (math.exp())
+import UsefulThings as useful
 
-
-
+#TODO test speed reduction of using @useful.supressWarnings
+#TODO figure out why useful.suppressWarnings was causing it to fail.
+#@useful.suppressWarnings
 @np.vectorize #turns it into a function that can be applied element-wise on a column vector
 def sigmoid(num):
     '''returns 1/(1+math.exp(-num)) or
     a very close approximation if abs(num) is large
+    
+    In simple terms, it takes any value and brings it
+    ...into the range 0 to 1, inclusive.
+    
+    Graph the function to see for yourself.
     '''
     try:
         return 1/(1+math.exp(-num))
     except OverflowError:
-        #TODO if this happens, np.vectorize prints an error to the console: get rid of that error printing because I deal with the error just fine.
         #this should only happen if num<-709 or num>9223372036854775807
         if num<0:
             return 0
         else:
             return 1
+
+#TODO del
+sigmoid(-123123123123)
 
 def resizeToVector(thing):
     return np.resize(thing, (thing.size, 1))
@@ -80,8 +89,9 @@ class NeuralNet:
     #Here are the different modes in order of how much error they allow. Less error is at the top:
     #modeType: what modeValue does (this is an example)
     #"iter": value specifies the amount of times the training is done
-    #"avg": value specifies the maximum average error allowed over the each example
-    #"avgAvg": value specifies the maximum allowed sum of the averages of the error in each example of the batch
+    #"avg": value specifies the maximum average error allowed over each example
+    #"avgAvg": value specifies the maximum allowed average error in each output neuron in the batch
+    #...(which is the same as the averaging the average error over each example, since each example has the same number of output neurons.)
     #"specific": value specifies the maximum average error allowed for each output neuron on each example
     #The net will continue to train on the entire batch until the error is low enough or it has trained enough times (depending on the mode)
     #Comment ranges from 0 to 2, 2 being the most verbose

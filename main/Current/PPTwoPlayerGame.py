@@ -53,12 +53,6 @@ class PPTwoPlayerGame(TwoPlayerGame):
     #This is completely separate from __str__()
     def convertToStr(self):
         raise NotImplementedError
-     
-    #Much like convertToStr except
-    #instead of converting into a string, you convert into a constant-sized list
-    #Constant-sized means that this function must always return a list of the same size
-    def convertToConstLenList(self):
-        raise NotImplementedError
     
     #Returns a list of possible moves that one could make, given the current game position
     #Each move needs to be a string or a number 
