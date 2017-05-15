@@ -147,10 +147,10 @@ if __name__ == "__main__":
     import numpy as np
     
     bigRes = []
-    for trainSpec in np.arange(.1, .3, .01):
+    for trainSpec in np.arange(.1, .2, .01):
         policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
         neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
-        neuralNetTrainingInfo = {"mode":("avgAvg", trainSpec), "comment":0}
+        neuralNetTrainingInfo = {"mode":("avgAvg", trainSpec), "comment":2}
         
         gameClass = TicTacToeGame
         gameRunner = TwoPlayerGameRunner(gameClass)
@@ -172,14 +172,14 @@ if __name__ == "__main__":
             #print("About to test against PolicyPlayer")
             res = test.testAgainst(p, p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
             specRes.append(res)
-            #print(res[3]) #print out the averages
+            print(res[3]) #print out the averages
         specResAvgs = [res[3] for res in specRes]
         passed = 0
         for avgList in specResAvgs:
-            if avgList[2]>=50:
+            if avgList[2]>=avgList[0]:
                 passed+=1
         avg = [sum(x)/len(specRes) for x in zip(*specResAvgs)]
-        print("Averages for 'avgAvg' training goal of {}:\n{}\n{} passed".format(round(trainSpec, 3), avg, passed))
+        print("Averages for '{}' training goal of {}:\n{}\n{} passed".format(neuralNetTrainingInfo["mode"][0], round(trainSpec, 3), avg, passed))
         bigRes.append(specRes)
             
     with open(fileName, 'wb') as f:

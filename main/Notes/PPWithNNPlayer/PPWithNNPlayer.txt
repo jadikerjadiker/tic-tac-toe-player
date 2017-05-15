@@ -98,4 +98,9 @@ Averages for 'avgAvg' training goal of 0.29:
 [67.77, 10.43, 21.8]
 0 passed
 
-Finally! One at 5. I also realized my way of telling what was passing or not was awful.
+Finally! One at 5.
+
+So, when I run this again,
+...the first couple values I'm getting are like 19% success and 44% (to 47% loss)
+...for the avgAvg .1 value, so that's 2 already not passing. And they take a long time to train.
+Need to find new method.
