@@ -1,0 +1,101 @@
+This is playing the neural network against the policy player that it trained from.
+Results are the average [loss, tie, win] with passing meaning win>50 for one of the tests
+
+Averages for 'avg' training goal of 0.19:
+[43.010000000000005, 21.24, 35.75]
+3 passed
+Averages for 'avg' training goal of 0.2:
+[50.6, 16.119999999999997, 33.28]
+1 passed
+Averages for 'avg' training goal of 0.21:
+[55.81, 14.070000000000002, 30.120000000000005]
+2 passed
+Averages for 'avg' training goal of 0.22:
+[51.27, 15.75, 32.980000000000004]
+0 passed
+Averages for 'avg' training goal of 0.23:
+[53.05, 19.220000000000002, 27.729999999999997]
+1 passed
+Averages for 'avg' training goal of 0.24:
+[57.7, 12.830000000000002, 29.47]
+0 passed
+Averages for 'avg' training goal of 0.25:
+[55.28000000000001, 8.690000000000001, 36.03]
+2 passed
+Averages for 'avg' training goal of 0.26:
+[46.84, 17.43, 35.730000000000004]
+2 passed
+Averages for 'avg' training goal of 0.27:
+[44.7, 8.64, 46.660000000000004]
+4 passed
+Averages for 'avg' training goal of 0.28:
+[56.73, 17.68, 25.59]
+0 passed
+Averages for 'avg' training goal of 0.29:
+[60.24000000000001, 7.389999999999999, 32.37]
+1 passed
+
+Doesn't seem to be any clear pattern. All have less than 5 passing though. Boo hoo.
+
+Averages for 'avgAvg' training goal of 0.1:
+[42.73, 11.4, 45.86999999999999]
+5 passed
+Averages for 'avgAvg' training goal of 0.11:
+[46.66, 17.950000000000003, 35.39]
+3 passed
+Averages for 'avgAvg' training goal of 0.12:
+[46.39, 17.04, 36.57000000000001]
+2 passed
+Averages for 'avgAvg' training goal of 0.13:
+[54.25, 10.889999999999999, 34.86]
+1 passed
+Averages for 'avgAvg' training goal of 0.14:
+[48.67999999999999, 6.74, 44.58]
+4 passed
+Averages for 'avgAvg' training goal of 0.15:
+[55.959999999999994, 15.830000000000002, 28.209999999999997]
+2 passed
+Averages for 'avgAvg' training goal of 0.16:
+[46.36, 16.15, 37.489999999999995]
+2 passed
+Averages for 'avgAvg' training goal of 0.17:
+[50.82, 12.8, 36.379999999999995]
+4 passed
+Averages for 'avgAvg' training goal of 0.18:
+[38.01, 23.979999999999997, 38.010000000000005]
+2 passed
+Averages for 'avgAvg' training goal of 0.19:
+[42.16, 17.38, 40.46]
+1 passed
+Averages for 'avgAvg' training goal of 0.2:
+[56.040000000000006, 16.78, 27.179999999999996]
+1 passed
+Averages for 'avgAvg' training goal of 0.21:
+[58.03000000000001, 16.009999999999998, 25.96]
+0 passed
+Averages for 'avgAvg' training goal of 0.22:
+[55.86999999999999, 12.349999999999998, 31.78]
+1 passed
+Averages for 'avgAvg' training goal of 0.23:
+[50.730000000000004, 11.440000000000001, 37.83]
+2 passed
+Averages for 'avgAvg' training goal of 0.24:
+[44.44, 18.119999999999997, 37.44]
+2 passed
+Averages for 'avgAvg' training goal of 0.25:
+[40.36, 18.919999999999998, 40.71999999999999]
+3 passed
+Averages for 'avgAvg' training goal of 0.26:
+[48.85, 9.379999999999999, 41.769999999999996]
+3 passed
+Averages for 'avgAvg' training goal of 0.27:
+[58.40999999999999, 18.35, 23.240000000000002]
+0 passed
+Averages for 'avgAvg' training goal of 0.28:
+[32.2, 22.740000000000002, 45.059999999999995]
+5 passed
+Averages for 'avgAvg' training goal of 0.29:
+[67.77, 10.43, 21.8]
+0 passed
+
+Finally! One at 5. I also realized my way of telling what was passing or not was awful.

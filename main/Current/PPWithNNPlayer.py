@@ -143,33 +143,49 @@ if __name__ == "__main__":
     import Testers as test
     from ChopsticksOverAndOutGame import ChopsticksOverAndOutGame
     from TicTacToeGame import TicTacToeGame
+    import pickle
+    import numpy as np
     
-    #TODO finish
-    
-    policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
-    neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
-    neuralNetTrainingInfo = {"mode":("avg", .2), "comment":0}
-    
-    gameClass = TicTacToeGame
-    gameRunner = TwoPlayerGameRunner(gameClass)
-    gamesToPlay = 200
-    
-    for i in range(50):
-        p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
-        for i in range(gamesToPlay):
-            #useful.printPercent(i, gamesToPlay, 5, 1)
-            g = gameRunner.play(who = (p, 'random'))
-            p.update()
+    bigRes = []
+    for trainSpec in np.arange(.1, .3, .01):
+        policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
+        neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
+        neuralNetTrainingInfo = {"mode":("avgAvg", trainSpec), "comment":0}
         
-        p.training = False
-        #learningRate = None, mode = None, trainAway = False, comment = False
-        #print("About to update")
-        p.update(**neuralNetTrainingInfo)
-        #print("About to test against PolicyPlayer")
-        res = test.testAgainst(p, p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
-        print("Averages: {}".format(res[3]))
-    while True:
-        gameRunner.play(who = (p, "human"))
+        gameClass = TicTacToeGame
+        gameRunner = TwoPlayerGameRunner(gameClass)
+        gamesToPlay = 200
+        fileName = "trainSpecData.pkl"
+        
+        specRes = []
+        for i in range(10):
+            p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
+            for i in range(gamesToPlay):
+                #useful.printPercent(i, gamesToPlay, 5, 1)
+                g = gameRunner.play(who = (p, 'random'))
+                p.update()
+            
+            p.training = False
+            #learningRate = None, mode = None, trainAway = False, comment = False
+            #print("About to update")
+            p.update(**neuralNetTrainingInfo)
+            #print("About to test against PolicyPlayer")
+            res = test.testAgainst(p, p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+            specRes.append(res)
+            #print(res[3]) #print out the averages
+        specResAvgs = [res[3] for res in specRes]
+        passed = 0
+        for avgList in specResAvgs:
+            if avgList[2]>=50:
+                passed+=1
+        avg = [sum(x)/len(specRes) for x in zip(*specResAvgs)]
+        print("Averages for 'avgAvg' training goal of {}:\n{}\n{} passed".format(round(trainSpec, 3), avg, passed))
+        bigRes.append(specRes)
+            
+    with open(fileName, 'wb') as f:
+            pickle.dump(bigRes, f, pickle.HIGHEST_PROTOCOL)
+    #while True:
+    #    gameRunner.play(who = (p, "human"))
     '''
     test.testAgainstRandom(p, gameClass, )
     #p.save("saved.pkl")
