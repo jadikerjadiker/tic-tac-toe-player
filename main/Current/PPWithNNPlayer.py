@@ -24,11 +24,13 @@ Then, all the data from the policy player is turned into a dataset for the neura
 
 class PPWithNNPlayer(TwoPlayerGamePlayer):
     #policyPlayerInfo and neuralNetInfo are both dictionaries
+    #examplesPerBatch is how many examples are in each batch when the neural net learns from the policy player. None means all the examples are in one batch
     #which contain all the paramters (including positional) for their respective class inits
     #The only difference is that neuralNetInfo's "architecture" parameter should not include an input or output layer
     #those layers in the architecture (which are dependant on the game) will be automatically added in this init.
-    def __init__(self, gameClass, policyPlayerInfo = {}, neuralNetInfo = {}):
+    def __init__(self, gameClass, policyPlayerInfo = {}, neuralNetInfo = {}, examplesPerBatch = None):
         self.gameClass = gameClass
+        self.examplesPerBatch = examplesPerBatch
         #the architecture of the neural net; how many neurons are in each layer
         architecture = [gameClass.inputLen] #first layer (input) must be the correct amount for the game
         myNeuralNetInfo = copy.deepcopy(neuralNetInfo) #copy it into a new dict since we're going to be editing it
@@ -129,11 +131,14 @@ class PPWithNNPlayer(TwoPlayerGamePlayer):
             #The reward for trying to make a move that can't be made
             defaultReward = kwargs.get("defaultReward", 0)
             self.checkReward(defaultReward)
-            batch = [(convertPPToNNInput(gameString), convertPPToNNOutput(defaultReward, policy)) for (gameString, policy) in self.policyPlayer.policies.items()]
-            dataset = [batch]
+            dataset = [(convertPPToNNInput(gameString), convertPPToNNOutput(defaultReward, policy)) for (gameString, policy) in self.policyPlayer.policies.items()]
+            if self.examplesPerBatch: #split it up into batches of the right size
+                batches = [dataset[i:i + self.examplesPerBatch] for i in range(0, len(dataset), self.examplesPerBatch)]
+            else: #just one batch
+                batches = [dataset]
             
             #**kwargs is passed to neural net for training parameters
-            self.neuralNet.train(dataset, **kwargs)
+            self.neuralNet.train(batches, **kwargs)
         
 
 if __name__ == "__main__":
@@ -147,19 +152,21 @@ if __name__ == "__main__":
     import numpy as np
     
     bigRes = []
-    for trainSpec in np.arange(.12, .2, .01):
+    #for trainSpec in np.arange(.20, .30, .05):
+    for trainSpec in [.2]:
         policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
         neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
-        neuralNetTrainingInfo = {"mode":("avgAvg", trainSpec), "comment":2}
+        neuralNetTrainingInfo = {"mode":("specific", trainSpec), "comment":0}
+        examplesPerBatch = 10
         
         gameClass = TicTacToeGame
         gameRunner = TwoPlayerGameRunner(gameClass)
-        gamesToPlay = 200
+        gamesToPlay = 1000
         fileName = "trainSpecData.pkl"
         
         specRes = []
         for i in range(10):
-            p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo)
+            p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo, examplesPerBatch)
             for i in range(gamesToPlay):
                 #useful.printPercent(i, gamesToPlay, 5, 1)
                 g = gameRunner.play(who = (p, 'random'))
@@ -169,14 +176,23 @@ if __name__ == "__main__":
             #learningRate = None, mode = None, trainAway = False, comment = False
             #print("About to update")
             p.update(**neuralNetTrainingInfo)
+            untrainedPlayer = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo, examplesPerBatch)
+            untrainedPlayer.training = False
             #print("About to test against PolicyPlayer")
             res1 = test.testAgainstRandom(p, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
             res2 = test.testAgainstRandom(p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+            res3 = test.testAgainstRandom(untrainedPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+            
+            #res = test.testAgainst(p, untrainedPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+            #specRes.append(res)
             specRes.append(res1)
             specRes.append(res2)
-            print("Training value for {} is {}".format(neuralNetTrainingInfo["mode"][0], round(trainSpec, 3)))
-            print("Player average results: {}".format(res1[-1]))
-            print("PolicyPlayer average results: {}".format(res2[-1]))
+            specRes.append(res3)
+            print("Training value for '{}' training is {}".format(neuralNetTrainingInfo["mode"][0], round(trainSpec, 3)))
+            #print("NeuralNetPlayer average results: {}".format(res[-1]))
+            print("TrainedNeuralNetPlayer average results: {}".format(res1[-1]))
+            print("TrainedPolicyPlayer average results: {}".format(res2[-1]))
+            print("UnTrainedNeuralNetPlayer average results: {}".format(res3[-1]))
             #print(res[3]) #print out the averages
         '''
         specResAvgs = [res[3] for res in specRes]
@@ -189,8 +205,8 @@ if __name__ == "__main__":
         '''
         bigRes.append(specRes)
             
-    with open(fileName, 'wb') as f:
-            pickle.dump(bigRes, f, pickle.HIGHEST_PROTOCOL)
+        with open(fileName, 'wb') as f:
+                pickle.dump(bigRes, f, pickle.HIGHEST_PROTOCOL)
     #while True:
     #    gameRunner.play(who = (p, "human"))
     '''

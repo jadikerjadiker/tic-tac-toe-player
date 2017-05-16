@@ -24,9 +24,6 @@ def sigmoid(num):
         else:
             return 1
 
-#TODO del
-sigmoid(-123123123123)
-
 def resizeToVector(thing):
     return np.resize(thing, (thing.size, 1))
 
@@ -174,7 +171,8 @@ class NeuralNet:
                     elif modeType=="specific":
                         #go through each outputError
                         for outputError in positiveOutputErrors:
-                            print("outputError:{}".format(outputError))
+                            if comment>2:
+                                print("outputError:{}".format(outputError))
                             #make sure that outputError has no values greater than the modeValue
                             if checker(np.nditer(outputError), modeValue):
                                 return
