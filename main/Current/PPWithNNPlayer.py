@@ -150,22 +150,24 @@ if __name__ == "__main__":
     from TicTacToeGame import TicTacToeGame
     import pickle
     import numpy as np
+    from scipy import stats
     
     bigRes = []
+    testData = [[], []]
     #for trainSpec in np.arange(.20, .30, .05):
-    for trainSpec in [.2]:
+    for trainSpec in [.12]:
         policyPlayerInfo = {"exploreRate":0, "learningRate":.5, "rewards":[0, .5, 1], "defaultPolicyValue":.2}
         neuralNetInfo = {"architecture":[9, 9, 9], "learningRate":.007}
-        neuralNetTrainingInfo = {"mode":("specific", trainSpec), "comment":0}
-        examplesPerBatch = 10
+        neuralNetTrainingInfo = {"mode":("specific", trainSpec), "comment":2}
+        examplesPerBatch = 100
         
         gameClass = TicTacToeGame
         gameRunner = TwoPlayerGameRunner(gameClass)
         gamesToPlay = 1000
         fileName = "trainSpecData.pkl"
         
-        specRes = []
-        for i in range(10):
+        specRes = [] #[1st res1, 1st res2, ..., 2nd res1, ...]
+        for newPlayer in range(100):
             p = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo, examplesPerBatch)
             for i in range(gamesToPlay):
                 #useful.printPercent(i, gamesToPlay, 5, 1)
@@ -179,21 +181,30 @@ if __name__ == "__main__":
             untrainedPlayer = PPWithNNPlayer(gameClass, policyPlayerInfo, neuralNetInfo, examplesPerBatch)
             untrainedPlayer.training = False
             #print("About to test against PolicyPlayer")
-            res1 = test.testAgainstRandom(p, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
-            res2 = test.testAgainstRandom(p.policyPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
-            res3 = test.testAgainstRandom(untrainedPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+            ress = [] #[res1, res2, ...]
+            players = [p, p.policyPlayer, untrainedPlayer]
+            playerNames = ["TrainedNeuralNetPlayer", "TrainedPolicyPlayer", "UnTrainedNeuralNetPlayer"]
+            for player in players:
+                ress.append(test.testAgainstRandom(player, gameClass, rounds = 10, gamesPerRound = 100, comment=0))
+            testData[0].append(ress[-len(players)][-1][-1])
+            testData[1].append(ress[-len(players)+2][-1][-1])
+            print(testData)
+            print([sum(dataList)/len(dataList) for dataList in testData])
+            specRes.extend(ress)
+            #I want the last value of the averages of the first two players over all versions of those players
+            print("Chance the the averages are the same is: {}".format(stats.ttest_rel(*testData)[-1]))
             
-            #res = test.testAgainst(p, untrainedPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
-            #specRes.append(res)
-            specRes.append(res1)
-            specRes.append(res2)
-            specRes.append(res3)
-            print("Training value for '{}' training is {}".format(neuralNetTrainingInfo["mode"][0], round(trainSpec, 3)))
-            #print("NeuralNetPlayer average results: {}".format(res[-1]))
-            print("TrainedNeuralNetPlayer average results: {}".format(res1[-1]))
-            print("TrainedPolicyPlayer average results: {}".format(res2[-1]))
-            print("UnTrainedNeuralNetPlayer average results: {}".format(res3[-1]))
-            #print(res[3]) #print out the averages
+        #res = test.testAgainst(p, untrainedPlayer, gameClass, rounds = 10, gamesPerRound = 100, comment=0)
+        #specRes.append(res)
+        print("Training value for '{}' training is {}".format(neuralNetTrainingInfo["mode"][0], round(trainSpec, 3)))
+        for playerIndex in range(len(players)):
+            print("{} average results: {}".format(playerNames[playerIndex], ress[playerIndex][-1]))
+        
+        #I want the last value of the averages of the first two players over all versions of those players
+        #print("Chance the the averages are the same is: {}".format(stats.ttest_rel(*testData)[-1]))
+        
+        
+
         '''
         specResAvgs = [res[3] for res in specRes]
         passed = 0
