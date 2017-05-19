@@ -190,7 +190,7 @@ if __name__ == "__main__":
         
         gameClass = TicTacToeGame
         gameRunner = TwoPlayerGameRunner(gameClass)
-        gamesToPlay = 100
+        gamesToPlay = 1000
         fileName = "trainSpecData.pkl"
         
         specRes = [] #[1st res1, 1st res2, ..., 2nd res1, ...]

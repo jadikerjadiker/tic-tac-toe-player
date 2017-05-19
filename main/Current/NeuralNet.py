@@ -149,7 +149,7 @@ class NeuralNet:
                 positiveOutputErrors = [np.absolute(outputError) for outputError in outputErrors]
                 if comment>1:
                     e = avgExampleErrors(positiveOutputErrors)
-                    print("Current avgAvg value: {}".format(sum(e)*1.0/len(outputErrors)))
+                    print("Current avgAvg value: {}".format(sum(e)*1.0/len(e)))
                 if modeType=="iter": #modeValue is the counter as to how many times the training should run
                     if modeValue<=0:
                         return
@@ -169,13 +169,16 @@ class NeuralNet:
                         if checker(avgBatchError(positiveOutputErrors), modeValue):
                             return
                     elif modeType=="specific":
-                        #go through each outputError
-                        for outputError in positiveOutputErrors:
+                        passed = True
+                        for examplePositiveOutputError in positiveOutputErrors:
                             if comment>2:
-                                print("outputError:{}".format(outputError))
+                                print("outputError:{}".format(examplePositiveOutputError))
                             #make sure that outputError has no values greater than the modeValue
-                            if checker(np.nditer(outputError), modeValue):
-                                return
+                            if not checker(np.nditer(examplePositiveOutputError), modeValue):
+                                passed = False
+                                break
+                        if passed:
+                            return
                     else:
                         raise RuntimeError("Unrecognized mode type '{}'".format(modeType))
                     
